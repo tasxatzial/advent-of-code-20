@@ -11,19 +11,20 @@
 (defn parse
   "Splits the input string by \n\n and then splits again by space.
   Returns a list of vectors, each element in the vector is
-  one field (key:value) of the passport."
+  one string field key:value of the passport."
   [s]
   (let [password-strings (clojure.string/split s #"\n\n")]
     (map #(clojure.string/split % #"[ \n]") password-strings)))
 
 (defn get-passport-field
-  "Creates a (key value) map from a passport field."
+  "Creates a {key value} map from a passport string of key:value."
   [x]
   (let [[key val] (clojure.string/split x #":")]
     {(keyword key) val}))
 
 (defn create-passport
-  "Creates a passport map from a passport string."
+  "Creates a passport map from a passport string. A passport map
+  is the collection of all its key, values."
   [passport]
   (reduce (fn [passport field]
             (into passport (get-passport-field field)))
@@ -37,6 +38,8 @@
 ; problem 1
 
 (defn hasRequiredKeys?
+  "Checks if a passport has all required keys. A passport is a map
+  of key, values as returned from create-passport()."
   [passport]
   (every? true? (map #(contains? passport %) required-keys)))
 
@@ -86,9 +89,9 @@
 
 (defn isHairColorValid?
   "Checks if the hair color is valid."
-  [color]
-  (let [leading-hash (take 1 color)
-        color-value (drop 1 color)]
+  [color-string]
+  (let [leading-hash (take 1 color-string)
+        color-value (drop 1 color-string)]
     (and (boolean (seq leading-hash))
          (boolean (seq color-value))
          (= "#" (apply str leading-hash))
@@ -99,14 +102,14 @@
 
 (defn isEyeColorValid?
   "Checks if the eye color is valid."
-  [color]
-  (contains? eye-colors color))
+  [color-string]
+  (contains? eye-colors color-string))
 
 (defn isPassportIDValid?
   "Checks if the passport id is valid."
-  [pid]
+  [pid-string]
   (= 9 (count (filter true? (map #(and (>= (int %) (int '\0)) (<= (int %) (int '\9)))
-                                 (map char pid))))))
+                                 (map char pid-string))))))
 
 (def validity-functions
   {:byr isBirthYearValid?
@@ -118,7 +121,7 @@
    :pid isPassportIDValid?})
 
 (defn isFieldValid?
-  "Checks if the value of a key is a valid passport value."
+  "Checks if the value of a required key is a valid passport value."
   [key passport]
   ((get validity-functions key) (passport key)))
 
@@ -135,6 +138,12 @@
 (def day04-1
   (count (filter true? (map isPassportValid1? passports))))
 
+(def day04-2
+  (count (filter true? (map #(and (isPassportValid1? %)
+                                  (isPassportValid2? %))
+                            passports))))
+
 (defn -main
   []
-  (println day04-1))                                        ;216
+  (println day04-1)                                         ;216
+  (println day04-2))                                        ;150
