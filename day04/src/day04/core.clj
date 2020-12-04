@@ -84,6 +84,19 @@
             (and (= "in" parsed-units) (>= parsed-height 59) (<= parsed-height 76))))
       false)))
 
+(defn isHairColorValid?
+  "Checks if the hair color is valid."
+  [color]
+  (let [leading-hash (take 1 color)
+        color-value (drop 1 color)]
+    (and (boolean (seq leading-hash))
+         (boolean (seq color-value))
+         (= "#" (apply str leading-hash))
+         (= 6 (count color-value))
+         (every? true? (map #(or (and (>= (int %) (int '\0)) (<= (int %) (int '\9)))
+                                 (and (>= (int %) (int '\a)) (<= (int %) (int '\f))))
+                            (map char color-value))))))
+
 ; ---------------------------------------
 ; results
 
