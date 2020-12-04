@@ -66,6 +66,12 @@
   (let [int-year (str->int year-string)]
     (and (>= int-year 2010) (<= int-year 2020))))
 
+(defn isExpirationYearValid?
+  "Checks if expiration year is valid."
+  [year-string]
+  (let [int-year (str->int year-string)]
+    (and (>= int-year 2020) (<= int-year 2030))))
+
 ; ---------------------------------------
 ; results
 
