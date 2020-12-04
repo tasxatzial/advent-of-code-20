@@ -108,6 +108,27 @@
   (= 9 (count (filter true? (map #(and (>= (int %) (int '\0)) (<= (int %) (int '\9)))
                                  (map char pid))))))
 
+(def validity-functions
+  {:byr isBirthYearValid?
+   :iyr isIssueYearValid?
+   :eyr isExpirationYearValid?
+   :hgt isHeightValid?
+   :hcl isHairColorValid?
+   :ecl isEyeColorValid?
+   :pid isPassportIDValid?})
+
+(defn isFieldValid?
+  "Checks if the value of a key is a valid passport value."
+  [key passport]
+  ((get validity-functions key) (passport key)))
+
+(defn isPassportValid2?
+  "Checks if a passport string for problem2 is valid. Should be called
+  only if isPassportValid1() returns true."
+  [passport]
+  (every? true? (map #(isFieldValid? % passport)
+                     required-keys)))
+
 ; ---------------------------------------
 ; results
 
