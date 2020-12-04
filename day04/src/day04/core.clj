@@ -67,10 +67,22 @@
     (and (>= int-year 2010) (<= int-year 2020))))
 
 (defn isExpirationYearValid?
-  "Checks if expiration year is valid."
+  "Checks if the expiration year is valid."
   [year-string]
   (let [int-year (str->int year-string)]
     (and (>= int-year 2020) (<= int-year 2030))))
+
+(defn isHeightValid?
+  "Checks if the height is valid."
+  [height-string]
+  (let [units (take-last 2 height-string)
+        height (drop-last 2 height-string)]
+    (if (and (seq units) (seq height))
+      (let [parsed-units (apply str units)
+            parsed-height (str->int (apply str height))]
+        (or (and (= "cm" parsed-units) (>= parsed-height 150) (<= parsed-height 193))
+            (and (= "in" parsed-units) (>= parsed-height 59) (<= parsed-height 76))))
+      false)))
 
 ; ---------------------------------------
 ; results
