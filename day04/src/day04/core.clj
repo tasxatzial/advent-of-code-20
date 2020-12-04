@@ -33,6 +33,23 @@
 ; put all passports in a list
 (def passports (map create-passport (parse (slurp input-file))))
 
+; ---------------------------------------
+; problem 1
+
+(defn hasRequiredKeys?
+  [passport]
+  (every? true? (map #(contains? passport %) required-keys)))
+
+(defn isPassportValid1?
+  [passport]
+  (hasRequiredKeys? passport))
+
+; ---------------------------------------
+; results
+
+(def day04-1
+  (count (filter true? (map isPassportValid1? passports))))
+
 (defn -main
   []
-  )
+  (println day04-1))                                        ;216
