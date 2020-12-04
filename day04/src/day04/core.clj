@@ -54,6 +54,12 @@
   [^String s]
   (Integer. s))
 
+(defn isBirthYearValid?
+  "Checks if the birth year is valid."
+  [year-string]
+  (let [int-year (str->int year-string)]
+    (and (>= int-year 1920) (<= int-year 2002))))
+
 ; ---------------------------------------
 ; results
 
