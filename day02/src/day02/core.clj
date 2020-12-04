@@ -50,11 +50,35 @@
     (and (>= (count occurences) min) (<= (count occurences) max))))
 
 ; ---------------------------------------
+; problem 2
+
+(defn get-positions
+  "Returns a vector of the first and second position in the password policy.
+   Input is a vector in the list returned by parse()"
+  [seq]
+  (let [[min max] (clojure.string/split (get seq 0) #"-")]
+    (map str->int [min max])))
+
+(defn isValid2?
+  "Returns true of false depending on whether the password is valid according
+  to the password policy."
+  [seq]
+  (let [[first-pos second-pos] (get-positions seq)
+        letter (get-letter seq)
+        password (get-password seq)]
+    (or (and (= letter (get password (dec first-pos))) (not= letter (get password (dec second-pos))))
+        (and (= letter (get password (dec second-pos))) (not= letter (get password (dec first-pos)))))))
+
+; ---------------------------------------
 ; results
 
 (def day02-1
   (count (filter true? (map isValid1? (parse (slurp input))))))
 
+(def day02-2
+  (count (filter true? (map isValid2? (parse (slurp input))))))
+
 (defn -main
   []
-  (println day02-1)) ;469
+  (println day02-1) ;469
+  (println day02-2)) ;267
