@@ -97,6 +97,11 @@
                                  (and (>= (int %) (int '\a)) (<= (int %) (int '\f))))
                             (map char color-value))))))
 
+(defn isEyeColorValid?
+  "Checks if the eye color is valid."
+  [color]
+  (contains? eye-colors color))
+
 ; ---------------------------------------
 ; results
 
