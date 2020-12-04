@@ -60,6 +60,12 @@
   (let [int-year (str->int year-string)]
     (and (>= int-year 1920) (<= int-year 2002))))
 
+(defn isIssueYearValid?
+  "Checks if the issue year is valid."
+  [year-string]
+  (let [int-year (str->int year-string)]
+    (and (>= int-year 2010) (<= int-year 2020))))
+
 ; ---------------------------------------
 ; results
 
