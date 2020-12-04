@@ -102,6 +102,12 @@
   [color]
   (contains? eye-colors color))
 
+(defn isPassportIDValid?
+  "Checks if the passport id is valid."
+  [pid]
+  (= 9 (count (filter true? (map #(and (>= (int %) (int '\0)) (<= (int %) (int '\9)))
+                                 (map char pid))))))
+
 ; ---------------------------------------
 ; results
 
