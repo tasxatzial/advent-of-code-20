@@ -45,6 +45,16 @@
   (hasRequiredKeys? passport))
 
 ; ---------------------------------------
+; problem 2
+
+(def eye-colors #{"amb" "blu" "brn" "gry" "grn" "hzl" "oth"})
+
+(defn str->int
+  "Converts a string to integer."
+  [^String s]
+  (Integer. s))
+
+; ---------------------------------------
 ; results
 
 (def day04-1
