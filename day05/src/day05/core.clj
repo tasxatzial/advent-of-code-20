@@ -24,6 +24,17 @@
                    [0 127]
                    row-code))))
 
+(defn find-col
+  "Finds the col number given a seat code."
+  [code-string]
+  (let [col-code (drop 7 code-string)]
+    (first (reduce (fn [[right left] letter]
+                     (if (= letter '\L)
+                       [right (dec (/ (inc (+ right left)) 2))]
+                       [(/ (inc (+ right left)) 2) left]))
+                   [0 7]
+                   col-code))))
+
 (defn -main
   []
   (println (parse (slurp input-file))))
