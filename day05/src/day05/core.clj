@@ -40,12 +40,30 @@
   [code-string]
   (+ (find-col code-string) (* 8 (find-row code-string))))
 
+(def seat-ids (map find-seat-id (parse (slurp input-file))))
+
+; ---------------------------------------
+; problem 2
+
+(defn find-my-seat
+  "Finds the missing seat-id."
+  [seat-ids]
+  (let [sorted-ids (sort seat-ids)]
+    (loop [ids sorted-ids seat (first sorted-ids)]
+      (if (not= seat (first ids))
+        seat
+        (recur (rest ids) (inc seat))))))
+
 ; ---------------------------------------
 ; results
 
 (def day05-1
-  (apply max (map find-seat-id (parse (slurp input-file)))))
+  (apply max seat-ids))
+
+(def day05-2
+  (find-my-seat seat-ids))
 
 (defn -main
   []
-  (println day05-1))
+  (println day05-1)                                         ;806
+  (println day05-2))                                        ;562
