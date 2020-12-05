@@ -40,6 +40,12 @@
   [code-string]
   (+ (find-col code-string) (* 8 (find-row code-string))))
 
+; ---------------------------------------
+; results
+
+(def day05-1
+  (apply max (map find-seat-id (parse (slurp input-file)))))
+
 (defn -main
   []
-  (println (parse (slurp input-file))))
+  (println day05-1))
