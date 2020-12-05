@@ -35,6 +35,11 @@
                    [0 7]
                    col-code))))
 
+(defn find-seat-id
+  "Finds the seat ID given a seat code."
+  [code-string]
+  (+ (find-col code-string) (* 8 (find-row code-string))))
+
 (defn -main
   []
   (println (parse (slurp input-file))))
