@@ -13,6 +13,23 @@
   [input]
   (map #(clojure.string/split % #"\n") (clojure.string/split input #"\n\n")))
 
+; ---------------------------------------
+; problem 1
+
+(defn count-yes
+  "Counts the yes answers of a group."
+  [group-answers]
+  (count (reduce (fn [result answer]
+                   (into result (set answer)))
+                 #{}
+                 group-answers)))
+
+; ---------------------------------------
+; results
+
+(def day06-1
+  (apply + (map count-yes (parse (slurp input-file)))))
+
 (defn -main
   []
-  (println (parse (slurp input-file))))
+  (println day06-1))
