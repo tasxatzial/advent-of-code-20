@@ -15,6 +15,13 @@
 
 (def parsed-input (parse (slurp input-file)))
 
+; Parses the strings from the parsed input into sets.
+(def all-answers-set
+  (reduce (fn [result group-answers]
+            (conj result (map set group-answers)))
+          '()
+          parsed-input))
+
 ; ---------------------------------------
 ; problem 1
 
@@ -22,24 +29,12 @@
   "Counts the yes answers of a group for problem 1."
   [group-answers]
   (count (reduce (fn [result answer]
-                   (into result (set answer)))
+                   (into result answer))
                  #{}
                  group-answers)))
 
 ; ---------------------------------------
 ; problem 2
-
-(defn convert-to-set
-  "Maps every answer from a group of answers to its set."
-  [group-answers]
-  (map set group-answers))
-
-; Parses the strings from the parsed input into sets.
-(def all-answers-set
-  (reduce (fn [result group-answers]
-            (conj result (convert-to-set group-answers)))
-          '()
-          parsed-input))
 
 (defn find-min-index
   "Searches the answers of a group and finds the index of the answer
@@ -58,7 +53,7 @@
 ; results
 
 (def day06-1
-  (apply + (map count-yes1 parsed-input)))
+  (apply + (map count-yes1 all-answers-set)))
 
 (defn -main
   []
