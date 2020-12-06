@@ -13,11 +13,13 @@
   [input]
   (map #(clojure.string/split % #"\n") (clojure.string/split input #"\n\n")))
 
+(def parsed-input (parse (slurp input-file)))
+
 ; ---------------------------------------
 ; problem 1
 
 (defn count-yes1
-  "Counts the yes answers of a group for problem 1"
+  "Counts the yes answers of a group for problem 1."
   [group-answers]
   (count (reduce (fn [result answer]
                    (into result (set answer)))
@@ -27,11 +29,23 @@
 ; ---------------------------------------
 ; problem 2
 
-(defn find-min-index
-  "Searches a group of answers and finds the index of the answer
-  that has the minimum yes."
+(defn convert-to-set
+  "Maps every answer from a group of answers to its set."
   [group-answers]
-  (let [answer-count (map count (map set group-answers))
+  (map set group-answers))
+
+; Parses the strings from the parsed input into sets.
+(def all-answers-set
+  (reduce (fn [result group-answers]
+            (conj result (convert-to-set group-answers)))
+          '()
+          parsed-input))
+
+(defn find-min-index
+  "Searches the answers of a group and finds the index of the answer
+  that has the minimum yes."
+  [answer-set]
+  (let [answer-count (map count answer-set)
         max-count (apply max answer-count)]
     (second (reduce (fn [[current-index min-index min-count] this-count]
                       (if (< this-count min-count)
@@ -44,7 +58,7 @@
 ; results
 
 (def day06-1
-  (apply + (map count-yes1 (parse (slurp input-file)))))
+  (apply + (map count-yes1 parsed-input)))
 
 (defn -main
   []
