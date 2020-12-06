@@ -16,8 +16,8 @@
 ; ---------------------------------------
 ; problem 1
 
-(defn count-yes
-  "Counts the yes answers of a group."
+(defn count-yes1
+  "Counts the yes answers of a group for problem 1"
   [group-answers]
   (count (reduce (fn [result answer]
                    (into result (set answer)))
@@ -25,10 +25,26 @@
                  group-answers)))
 
 ; ---------------------------------------
+; problem 2
+
+(defn find-min-index
+  "Searches a group of answers and finds the index of the answer
+  that has the minimum yes."
+  [group-answers]
+  (let [answer-count (map count (map set group-answers))
+        max-count (apply max answer-count)]
+    (second (reduce (fn [[current-index min-index min-count] this-count]
+                      (if (< this-count min-count)
+                        [(inc current-index) current-index this-count]
+                        [(inc current-index) min-index min-count]))
+                    [0 0 max-count]
+                    answer-count))))
+
+; ---------------------------------------
 ; results
 
 (def day06-1
-  (apply + (map count-yes (parse (slurp input-file)))))
+  (apply + (map count-yes1 (parse (slurp input-file)))))
 
 (defn -main
   []
