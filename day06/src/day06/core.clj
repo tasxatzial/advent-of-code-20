@@ -49,12 +49,27 @@
                     [0 0 max-count]
                     answer-count))))
 
+(defn count-yes2
+  "Counts the yes answers of a group for problem 2."
+  [group-answers]
+  (let [min-set (nth group-answers (find-min-index group-answers))]
+    (reduce (fn [yes-count answer]
+              (if (some false? (map #(contains? % answer) group-answers))
+                yes-count
+                (inc yes-count)))
+            0
+            min-set)))
+
 ; ---------------------------------------
 ; results
 
 (def day06-1
   (apply + (map count-yes1 all-answers-set)))
 
+(def day06-2
+  (apply + (map count-yes2 all-answers-set)))
+
 (defn -main
   []
-  (println day06-1))
+  (println day06-1)
+  (println day06-2))
