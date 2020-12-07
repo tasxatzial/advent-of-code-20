@@ -54,6 +54,19 @@
             {}
             s-inner-bags)))
 
+(defn parse-rule
+  "Parses the result of inner-outer-split() into a map that describes both
+  the inner and outer bags."
+  [inner-outer-split]
+  {(create-outer-bag inner-outer-split) (create-inner-bags inner-outer-split)})
+
+; Creates a map of {:outer_bag_type {:inner_bag_type1 count1 :inner_bag_type2 count2 ...}}
+(def parsed-rules
+  (reduce (fn [result rule]
+            (into result (parse-rule (inner-outer-split rule))))
+          {}
+          parsed-input))
+
 (defn -main
   []
-  (println parsed-input))
+  (println counted))
