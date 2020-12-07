@@ -16,8 +16,6 @@
   [input]
   (clojure.string/split input #"\n"))
 
-(def parsed-input (parse (slurp input-file)))
-
 (defn create-bag-count
   "Creates a map from a string that has one of the two formats:
   '5 muted yellow bags' returns {:mutedyellow 5}
@@ -65,7 +63,7 @@
   (reduce (fn [result rule]
             (into result (parse-rule (inner-outer-split rule))))
           {}
-          parsed-input))
+          (parse (slurp input-file))))
 
 ; ---------------------------------------
 ; problem 1
@@ -97,6 +95,16 @@
         true
         (inner-bags-contain-shinygold? (rest inner-bags))))))
 
+; ---------------------------------------
+; results
+
+(def day07-1 (reduce (fn [result [key val]]
+                       (if (bag-contains-shinygold? key)
+                         (inc result)
+                         result))
+                     0
+                     rules-without-shinygold))
+
 (defn -main
   []
-  (println rules-without-shinygold))
+  (println day07-1))                                        ;185
