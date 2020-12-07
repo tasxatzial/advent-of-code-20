@@ -87,6 +87,19 @@
           (inner-bags-contain-shinygold? (dissoc inner-bags key)))))))
 
 ; ---------------------------------------
+; problem 2
+
+(defn count-bags-inside-shinygold
+  "Counts the number of bags the shiny gold bag contains."
+  [inner-bags]
+  (if (empty? inner-bags)
+    0
+    (reduce (fn [result [key val]]
+              (+ result val (* val (count-bags-inside-shinygold (key parsed-rules)))))
+            0
+            inner-bags)))
+
+; ---------------------------------------
 ; results
 
 (def day07-1 (reduce (fn [result [key val]]
@@ -96,6 +109,9 @@
                      0
                      rules-without-shinygold))
 
+(def day07-2 (count-bags-inside-shinygold (:shinygold parsed-rules)))
+
 (defn -main
   []
-  (println day07-1))                                        ;185
+  (println day07-1)                                         ;185
+  (println day07-2))                                        ;89084
