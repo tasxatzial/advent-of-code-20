@@ -73,33 +73,24 @@
 
 (declare inner-bags-contain-shinygold?)
 
-(defn bag-contains-shinygold?
-  "Returns true if a bag key can contain the shiny gold key."
-  [bag-key]
-  (let [inner-bags (bag-key rules-without-shinygold)]
-    (if (empty? inner-bags)
-      false
-      (if (contains? inner-bags :shinygold)
-        true
-        (inner-bags-contain-shinygold? inner-bags)))))
-
 (defn inner-bags-contain-shinygold?
   "Returns true if the value (inner bags) of a bag key can contain the
   shiny gold key."
   [inner-bags]
   (if (empty? inner-bags)
     false
-    (let [first-bag (first inner-bags)
-          bag-key (first first-bag)]
-      (if (bag-contains-shinygold? bag-key)
-        true
-        (inner-bags-contain-shinygold? (rest inner-bags))))))
+    (if (contains? inner-bags :shinygold)
+      true
+      (let [[key val] (first inner-bags)]
+        (if (inner-bags-contain-shinygold? (key rules-without-shinygold))
+          true
+          (inner-bags-contain-shinygold? (dissoc inner-bags key)))))))
 
 ; ---------------------------------------
 ; results
 
 (def day07-1 (reduce (fn [result [key val]]
-                       (if (bag-contains-shinygold? key)
+                       (if (inner-bags-contain-shinygold? val)
                          (inc result)
                          result))
                      0
