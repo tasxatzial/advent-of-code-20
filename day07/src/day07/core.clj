@@ -67,6 +67,36 @@
           {}
           parsed-input))
 
+; ---------------------------------------
+; problem 1
+
+; remove the shiny gold bag rules from map of final rules
+(def rules-without-shinygold (dissoc parsed-rules :shinygold))
+
+(declare inner-bags-contain-shinygold?)
+
+(defn bag-contains-shinygold?
+  "Returns true if a bag key can contain the shiny gold key."
+  [bag-key]
+  (let [inner-bags (bag-key rules-without-shinygold)]
+    (if (empty? inner-bags)
+      false
+      (if (contains? inner-bags :shinygold)
+        true
+        (inner-bags-contain-shinygold? inner-bags)))))
+
+(defn inner-bags-contain-shinygold?
+  "Returns true if the value (inner bags) of a bag key can contain the
+  shiny gold key."
+  [inner-bags]
+  (if (empty? inner-bags)
+    false
+    (let [first-bag (first inner-bags)
+          bag-key (first first-bag)]
+      (if (bag-contains-shinygold? bag-key)
+        true
+        (inner-bags-contain-shinygold? (rest inner-bags))))))
+
 (defn -main
   []
-  (println counted))
+  (println rules-without-shinygold))
