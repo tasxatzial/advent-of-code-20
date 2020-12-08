@@ -39,8 +39,8 @@
    accumulator value before any instruction is executed a second time.
   2) If the program terminates (meaning we reached the next to last command):
    [acc_value, true] where acc_value is the accumulator value at that point."
-  ([parsed-input] (execute1 parsed-input 0 0 #{}))
-  ([parsed-input accumulator current-command-index command-history]
+  ([] (execute1 0 0 #{}))
+  ([accumulator current-command-index command-history]
    (if (= current-command-index command-count)
      [accumulator true]
      (if (contains? command-history current-command-index)
@@ -48,9 +48,9 @@
        (let [[command value] (get parsed-input current-command-index)
              command-history (conj command-history current-command-index)]
          (case command
-           :nop (execute1 parsed-input accumulator (inc current-command-index) command-history)
-           :acc (execute1 parsed-input (+ accumulator value) (inc current-command-index) command-history)
-           :jmp (execute1 parsed-input accumulator (+ value current-command-index) command-history)))))))
+           :nop (execute1 accumulator (inc current-command-index) command-history)
+           :acc (execute1 (+ accumulator value) (inc current-command-index) command-history)
+           :jmp (execute1 accumulator (+ value current-command-index) command-history)))))))
 
 ; --------------------------
 ; problem 2
@@ -63,29 +63,29 @@
    accumulator value before any instruction is executed a second time.
   2) If the program terminates (meaning we reached the next to last command):
    [acc_value, true] where acc_value is the accumulator value at that point."
-  ([parsed-input] (execute2 parsed-input 0 0 #{}))
-  ([parsed-input accumulator current-command-index command-history]
+  ([] (execute2 0 0 #{}))
+  ([accumulator current-command-index command-history]
    (if (= current-command-index command-count)
-     [accumulator false]
+     [accumulator true]
      (let [[command value] (get parsed-input current-command-index)
            command-history (conj command-history current-command-index)]
        (case command
-         :nop (let [[new-accumulator terminated?] (execute1 parsed-input accumulator (+ value current-command-index) command-history)]
+         :nop (let [[new-accumulator terminated?] (execute1 accumulator (+ value current-command-index) command-history)]
                 (if terminated?
                   [new-accumulator true]
-                  (execute2 parsed-input accumulator (inc current-command-index) command-history)))
-         :jmp (let [[new-accumulator terminated?] (execute1 parsed-input accumulator (inc current-command-index) command-history)]
+                  (execute2 accumulator (inc current-command-index) command-history)))
+         :jmp (let [[new-accumulator terminated?] (execute1 accumulator (inc current-command-index) command-history)]
                 (if terminated?
                   [new-accumulator true]
-                  (execute2 parsed-input accumulator (+ value current-command-index) command-history)))
-         :acc (execute2 parsed-input (+ accumulator value) (inc current-command-index) command-history))))))
+                  (execute2 accumulator (+ value current-command-index) command-history)))
+         :acc (execute2 (+ accumulator value) (inc current-command-index) command-history))))))
 
 ; --------------------------
 ; results
 
-(def day08-1 (execute1 parsed-input))
+(def day08-1 (execute1))
 
-(def day08-2 (execute2 parsed-input))
+(def day08-2 (execute2))
 
 (defn -main
   []
