@@ -53,10 +53,41 @@
            :jmp (execute1 parsed-input accumulator (+ value current-command-index) command-history)))))))
 
 ; --------------------------
+; problem 2
+
+(defn execute2
+  "Executes the instructions from the parsed-input and modifies a single :nop to :jmp
+  or vice versa so that they program terminates.
+  Returns a vector that contains:
+  1) If the program does not terminate: [acc_value, false] where acc_value is the
+   accumulator value before any instruction is executed a second time.
+  2) If the program terminates (meaning we reached the next to last command):
+   [acc_value, true] where acc_value is the accumulator value at that point."
+  ([parsed-input] (execute2 parsed-input 0 0 #{}))
+  ([parsed-input accumulator current-command-index command-history]
+   (if (= current-command-index command-count)
+     [accumulator false]
+     (let [[command value] (get parsed-input current-command-index)
+           command-history (conj command-history current-command-index)]
+       (case command
+         :nop (let [[new-accumulator terminated?] (execute1 parsed-input accumulator (+ value current-command-index) command-history)]
+                (if terminated?
+                  [new-accumulator true]
+                  (execute2 parsed-input accumulator (inc current-command-index) command-history)))
+         :jmp (let [[new-accumulator terminated?] (execute1 parsed-input accumulator (inc current-command-index) command-history)]
+                (if terminated?
+                  [new-accumulator true]
+                  (execute2 parsed-input accumulator (+ value current-command-index) command-history)))
+         :acc (execute2 parsed-input (+ accumulator value) (inc current-command-index) command-history))))))
+
+; --------------------------
 ; results
 
 (def day08-1 (execute1 parsed-input))
 
+(def day08-2 (execute2 parsed-input))
+
 (defn -main
   []
-  (println day08-1))                                     ;[1818 false]
+  (println day08-1)                                         ;[1818 false]
+  (println day08-2))                                        ;[631 true]
