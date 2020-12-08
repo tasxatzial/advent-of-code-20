@@ -27,6 +27,29 @@
             []
             input)))
 
+; --------------------------
+; problem 1
+
+(defn execute1
+  "Executes the instructions from the parsed-input and returns
+  the value of the accumulator before a command is about to be executed
+  for a second time."
+  ([] (execute1 0 0 #{}))
+  ([accumulator current-command-index command-history]
+   (if (contains? command-history current-command-index)
+     accumulator
+     (let [[command value] (get parsed-input current-command-index)
+           command-history (conj command-history current-command-index)]
+       (case command
+         :nop (execute1 accumulator (inc current-command-index) command-history)
+         :acc (execute1 (+ accumulator value) (inc current-command-index) command-history)
+         :jmp (execute1 accumulator (+ value current-command-index) command-history))))))
+
+; --------------------------
+; results
+
+(def day08-1 (execute1))
+
 (defn -main
   []
-  (println parsed-input))
+  (println day08-1))                                     ;1818
