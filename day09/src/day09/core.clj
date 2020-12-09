@@ -25,7 +25,8 @@
 ; problem 1
 
 (defn sorted-insert
-  "Adds num to a sorted col so that they new col is also sorted."
+  "Adds num to a sorted col so that they new col is also sorted.
+  Runs in linear time."
   ([sorted-col num]
    (sorted-insert sorted-col num '()))
   ([sorted-col num result]
@@ -34,6 +35,24 @@
      (if (> (first sorted-col) num)
        (concat result [num] sorted-col)
        (recur (rest sorted-col) num (concat result [(first sorted-col)]))))))
+
+(defn sumOfTwo?
+  "Returns true if num is the sum of two numbers in col, false otherwise.
+  Assumes col is sorted therefore takes advantage of the appropriate optimizations."
+  [col num]
+  (if (empty? col)
+    false
+    (let [first-num (first col)]
+      (if (>= first-num num)
+        false
+        (loop [rest-col (rest col)]
+          (if (empty? rest-col)
+            (sumOfTwo? (rest col) num)
+            (if (= num (+ (first rest-col) first-num))
+              true
+              (if (> num (+ (first rest-col) first-num))
+                (recur (rest rest-col))
+                (sumOfTwo? (rest col) num)))))))))
 
 (defn -main
   []
