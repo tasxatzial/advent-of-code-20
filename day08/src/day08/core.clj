@@ -48,9 +48,9 @@
        (let [[command value] (get parsed-input current-command-index)
              command-history (conj command-history current-command-index)]
          (case command
-           :nop (execute1 accumulator (inc current-command-index) command-history)
-           :acc (execute1 (+ accumulator value) (inc current-command-index) command-history)
-           :jmp (execute1 accumulator (+ value current-command-index) command-history)))))))
+           :nop (recur accumulator (inc current-command-index) command-history)
+           :acc (recur (+ accumulator value) (inc current-command-index) command-history)
+           :jmp (recur accumulator (+ value current-command-index) command-history)))))))
 
 ; --------------------------
 ; problem 2
@@ -73,12 +73,12 @@
          :nop (let [[new-accumulator terminated?] (execute1 accumulator (+ value current-command-index) command-history)]
                 (if terminated?
                   [new-accumulator true]
-                  (execute2 accumulator (inc current-command-index) command-history)))
+                  (recur accumulator (inc current-command-index) command-history)))
          :jmp (let [[new-accumulator terminated?] (execute1 accumulator (inc current-command-index) command-history)]
                 (if terminated?
                   [new-accumulator true]
-                  (execute2 accumulator (+ value current-command-index) command-history)))
-         :acc (execute2 (+ accumulator value) (inc current-command-index) command-history))))))
+                  (recur accumulator (+ value current-command-index) command-history)))
+         :acc (recur (+ accumulator value) (inc current-command-index) command-history))))))
 
 ; --------------------------
 ; results

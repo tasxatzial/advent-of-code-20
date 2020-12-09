@@ -31,7 +31,7 @@
        (if (= sum 2020)
          [f g]
          (if (< sum 2020)                                   ;optimization
-           (add-to-first-element seq (inc i))))))))
+           (recur seq (inc i))))))))
 
 (defn sum2020-1
   "Returns the first pair of numbers from seq that sums to 2020 or nil if such pair
@@ -40,7 +40,7 @@
   (if (or (empty? seq) (> (first seq) 1010))                ;optimization
     nil
     (let [res (add-to-first-element seq)]
-      (or res (sum2020-1 (rest seq))))))
+      (or res (recur (rest seq))))))
 
 ; --------------------------
 ; problem 2
@@ -57,7 +57,7 @@
        (if (= sum 2020)
          [f g h]
          (if (< sum 2020)                                   ;optimization
-           (add-to-two-elements seq f i (inc j))))))))
+           (recur seq f i (inc j))))))))
 
 (defn add-to-one-element
   "Uses a fixed number f and finds two numbers from seq such that the sum of all
@@ -68,7 +68,7 @@
    (if (or (= i (- (count seq) 1)) (> (+ f i) 2020))                 ;optimization
      nil
      (let [res (add-to-two-elements seq f i)]
-       (or res (add-to-one-element seq f (inc i)))))))
+       (or res (recur seq f (inc i)))))))
 
 (defn sum2020-2
   "Returns the first triplet from seq that sums to 2020 or nil if such triplet
@@ -77,7 +77,7 @@
   (if (or (= 2 (count seq)) (> (first seq) 673))            ;optimization
     nil
     (let [res (add-to-one-element seq (first seq))]
-      (or res (sum2020-2 (rest seq))))))
+      (or res (recur (rest seq))))))
 
 ; ---------------------------------------
 ; results

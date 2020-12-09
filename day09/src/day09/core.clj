@@ -65,7 +65,7 @@
      -1
      (if (= (first col) num)
        index
-       (find-index (rest col) num (inc index))))))
+       (recur (rest col) num (inc index))))))
 
 (defn remove-num
   "Removes the first instance of num from the col and returns a new col."
@@ -88,7 +88,7 @@
          (let [to-remove (nth parsed-input (- index preamble-size))
                new-col (remove-num sub-col to-remove)
                new-sub-col (sorted-insert new-col checked-num)]
-           (find-first new-sub-col (inc index)))
+           (recur new-sub-col (inc index)))
          checked-num)))))
 
 ; ---------------------------------------

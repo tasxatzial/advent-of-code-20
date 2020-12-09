@@ -84,7 +84,7 @@
       (let [[key val] (first inner-bags)]
         (if (inner-bags-contain-shinygold? (key rules-without-shinygold))
           true
-          (inner-bags-contain-shinygold? (dissoc inner-bags key)))))))
+          (recur (dissoc inner-bags key)))))))
 
 ; ---------------------------------------
 ; problem 2
