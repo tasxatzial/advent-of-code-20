@@ -21,6 +21,8 @@
 
 (def preamble-size 25)
 
+(def count-col (count parsed-input))
+
 ; ---------------------------------------
 ; problem 1
 
@@ -71,6 +73,29 @@
   (let [index (find-index col num)]
     (concat (take index col) (drop (inc index) col))))
 
+(defn find-first
+  "Finds the first number in the parsed input that is not the sum
+  of any of the previous 25 numbers."
+  ([]
+   (let [init-col (take preamble-size parsed-input)
+         sorted-init-col (sort init-col)]
+     (find-first sorted-init-col preamble-size)))
+  ([sub-col index]
+   (if (>= index count-col)
+     nil
+     (let [checked-num (nth parsed-input index)]
+       (if (sumOfTwo? sub-col checked-num)
+         (let [to-remove (nth parsed-input (- index preamble-size))
+               new-col (remove-num sub-col to-remove)
+               new-sub-col (sorted-insert new-col checked-num)]
+           (find-first new-sub-col (inc index)))
+         checked-num)))))
+
+; ---------------------------------------
+; results
+
+(def day09-1 (find-first))
+
 (defn -main
   []
-  (println parsed-input))
+  (println day09-1))                                        ;393911906
