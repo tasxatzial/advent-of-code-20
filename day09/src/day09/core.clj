@@ -54,6 +54,23 @@
                 (recur (rest rest-col))
                 (sumOfTwo? (rest col) num)))))))))
 
+(defn find-index
+  "Finds the index of num in col. Returns -1 if num is not present in col."
+  ([col num]
+   (find-index col num 0))
+  ([col num index]
+   (if (empty? col)
+     -1
+     (if (= (first col) num)
+       index
+       (find-index (rest col) num (inc index))))))
+
+(defn remove-num
+  "Removes the first instance of num from the col and returns a new col."
+  [col num]
+  (let [index (find-index col num)]
+    (concat (take index col) (drop (inc index) col))))
+
 (defn -main
   []
   (println parsed-input))
