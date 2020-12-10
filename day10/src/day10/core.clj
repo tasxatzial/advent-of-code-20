@@ -44,6 +44,21 @@
          (+ count-left count-right))
        (count-trees (dec num) 0)))))
 
+
+; Create a list of the number of elements in each block of ones in the joltage
+; differences list from problem 1 and subtract 1 from each element.
+; Only non-zero values are collected.
+(def ones-sizes
+  (let [partition-by-3 (partition-by #(= 3 %) diffs)]
+    (reduce (fn [result sublist]
+              (if (= (first sublist) 3)
+                result
+                (if (not= (count sublist) 1)
+                  (conj result (dec (count sublist)))
+                  result)))
+            []
+            partition-by-3)))
+
 ; ---------------------------------------
 ; results
 
