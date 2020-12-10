@@ -28,6 +28,23 @@
     (map #(- %1 %2) sorted-col shifted-col)))
 
 ; ---------------------------------------
+; problem 2
+
+(defn count-trees
+  "Returns the number of binary trees that satisfy:
+  1. Node values are either 0 or 1.
+  2. There are no 3 consecutive nodes that have value 0."
+  ([num] (count-trees num 0))
+  ([num count-zero]
+   (if (= num 0)
+     1
+     (if (or (= count-zero 0) (= count-zero 1))
+       (let [count-left (count-trees (dec num) (inc count-zero))
+             count-right (count-trees (dec num) 0)]
+         (+ count-left count-right))
+       (count-trees (dec num) 0)))))
+
+; ---------------------------------------
 ; results
 
 (def day10-1
