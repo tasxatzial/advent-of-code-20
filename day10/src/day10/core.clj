@@ -48,7 +48,7 @@
 ; Create a list of the number of elements in each block of ones in the joltage
 ; differences list from problem 1 and subtract 1 from each element.
 ; Only non-zero values are collected.
-(def ones-sizes
+(def ones-block-sizes
   (let [partition-by-3 (partition-by #(= 3 %) diffs)]
     (reduce (fn [result sublist]
               (if (= (first sublist) 3)
@@ -67,6 +67,19 @@
         count-3jolts (count (filter #(= 3 %) diffs))]
     (* count-1jolts (inc count-3jolts))))    ;+1 because our device always has diff 3
 
+; Efficiently process the list ones-block-sizes. For each number in that list
+; we use the count-trees then each result is multiplied by the previous one. The final
+; result is the total number of distinct ways we can arrange the adapters.
+(def day10-2
+  (let [partition&sort-ones-block-sizes (partition-by identity (sort ones-block-sizes))]
+    (reduce (fn [result ones-size-block]
+              (let [ones-size-factor (count-trees (first ones-size-block))
+                    ones-size-factors (take (count ones-size-block) (repeat ones-size-factor))]
+                (* result (apply * ones-size-factors))))
+            1
+            partition&sort-ones-block-sizes)))
+
 (defn -main
   []
-  (println day10-1))                                        ;2277
+  (println day10-1)                                         ;2277
+  (println day10-2))                                        ;37024595836928
