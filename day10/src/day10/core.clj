@@ -21,17 +21,20 @@
 ; ---------------------------------------
 ; problem 1
 
+; in order to find the joltage differences, we should first sort the joltages
+(def diffs
+  (let [sorted-col (sort parsed-input)
+        shifted-col (conj (butlast sorted-col) 0)]
+    (map #(- %1 %2) sorted-col shifted-col)))
+
 ; ---------------------------------------
 ; results
 
 (def day10-1
-  (let [sorted-col (sort parsed-input)
-        shifted-col (conj (butlast sorted-col) 0)
-        diff-col (map #(- %1 %2) sorted-col shifted-col)
-        count-1jolts (count (filter #(= 1 %) diff-col))
-        count-3jolts (count (filter #(= 3 %) diff-col))]
+  (let [count-1jolts (count (filter #(= 1 %) diffs))
+        count-3jolts (count (filter #(= 3 %) diffs))]
     (* count-1jolts (inc count-3jolts))))    ;+1 because our device always has diff 3
 
 (defn -main
   []
-  (println day10-1))
+  (println day10-1))                                        ;2277
