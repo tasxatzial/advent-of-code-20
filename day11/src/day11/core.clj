@@ -46,6 +46,21 @@
           '()
           adjacents))
 
+(defn process-input
+  "Processes the input returned by parse() and creates the appropriate structure
+  that represents the seats and their adjacent seats."
+  ([] (process-input {} 0 0))
+  ([result row-index col-index]
+   (if (> row-index max-row)
+     result
+     (if (> col-index max-col)
+       (recur result (inc row-index) 0)
+       (let [seat-key (compute-seat-key row-index col-index)
+             adjacents (process-adjacents-pos (find-adjacents-pos row-index col-index))
+             seat-state (get (get parsed-input row-index) col-index)
+             result (conj result {seat-key [seat-state adjacents]})]
+         (recur result row-index (inc col-index)))))))
+
 (defn -main
   []
   (println (process-input)))
