@@ -68,6 +68,17 @@
 ; ---------------------------------------
 ; problem 1
 
+(defn next-seat-state
+  [seat]
+  (let [current-state (first seat)
+        adjacents (second seat)
+        adjacent-states (map #(get seat-map %) adjacents)
+        occupied-seats (filter #(= '\# %) adjacent-states)]
+    (cond
+      (and (= current-state '\L) (= (count occupied-seats) 0)) ['\# adjacents]
+      (and (= current-state '\#) (>= (count occupied-seats) 4)) ['\L adjacents]
+      :else seat)))
+
 (defn -main
   []
   (println seat-map))
