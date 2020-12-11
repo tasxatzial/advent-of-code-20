@@ -69,6 +69,7 @@
 ; problem 1
 
 (defn next-seat-state
+  "Returns the new state of seat."
   [seat]
   (let [current-state (first seat)
         adjacents (second seat)
@@ -78,6 +79,14 @@
       (and (= current-state '\L) (= (count occupied-seats) 0)) ['\# adjacents]
       (and (= current-state '\#) (>= (count occupied-seats) 4)) ['\L adjacents]
       :else seat)))
+
+(defn seat-state-changed?
+  "Returns true if at least one seat has changed state, nil otherwise."
+  [old-seats new-seats]
+  (let [old-states (map #(first %) old-seats)
+        new-states (map #(first %) new-seats)]
+    (do (println old-states)
+        (some false? (map #(= %1 %2) old-states new-states)))))
 
 (defn -main
   []
