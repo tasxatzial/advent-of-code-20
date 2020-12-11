@@ -15,22 +15,77 @@
 (def max-row (dec (count parsed-input)))
 (def max-col (dec (count (first parsed-input))))
 
-(defn find-adjacents-pos
-  "Returns a map of the adjacent coordinates of [row-index col-index]."
-  [row-index col-index]
-  {:left [row-index (dec col-index)]
-   :right [row-index (inc col-index)]
-   :top [(dec row-index) col-index]
-   :bottom [(inc row-index) col-index]
-   :top-left [(dec row-index) (dec col-index)]
-   :top-right [(dec row-index) (inc col-index)]
-   :bottom-left [(inc row-index) (dec col-index)]
-   :bottom-right [(inc row-index) (inc col-index)]})
-
 (defn compute-seat-index
   "Returns the index of a seat at coordinates [row-index, col-index]."
   [row-index col-index]
   (+ col-index (* row-index (inc max-col))))
+
+(defn seat-state-changed?
+  "Returns true if at least one seat has changed state, nil otherwise."
+  [old-seats new-seats]
+  (let [old-states (map #(first %) old-seats)
+        new-states (map #(first %) new-seats)]
+    (some false? (map #(= %1 %2) old-states new-states))))
+
+(defn count-occupied
+  "Counts the number of occupied seats."
+  [seats]
+  (count (filter #(= '\# (first %)) seats)))
+
+(defn left-pos
+  "Returns the position to the left of [row-index, col-index]."
+  [row-index col-index]
+  [row-index (dec col-index)])
+
+(defn right-pos
+  "Returns the position to the right of [row-index, col-index]."
+  [row-index col-index]
+  [row-index (inc col-index)])
+
+(defn bottom-pos
+  "Returns the position to the bottom of [row-index, col-index]."
+  [row-index col-index]
+  [(inc row-index) col-index])
+
+(defn top-pos
+  "Returns the position to the top of [row-index, col-index]."
+  [row-index col-index]
+  [(dec row-index) col-index])
+
+(defn top-left-pos
+  "Returns the position to the top-left of [row-index, col-index]."
+  [row-index col-index]
+  [(dec row-index) (dec col-index)])
+
+(defn top-right-pos
+  "Returns the position to the top-left of [row-index, col-index]."
+  [row-index col-index]
+  [(dec row-index) (inc col-index)])
+
+(defn bottom-left-pos
+  "Returns the position to the bottom-left of [row-index, col-index]."
+  [row-index col-index]
+  [(inc row-index) (dec col-index)])
+
+(defn bottom-right-pos
+  "Returns the position to the bottom-right of [row-index, col-index]."
+  [row-index col-index]
+  [(inc row-index) (inc col-index)])
+
+; ---------------------------------------
+; problem 1
+
+(defn find-adjacents-pos
+  "Returns a map of the adjacent coordinates of [row-index col-index]."
+  [row-index col-index]
+  {:left (left-pos row-index col-index)
+   :right (right-pos row-index col-index)
+   :top (top-pos row-index col-index)
+   :bottom (bottom-pos row-index col-index)
+   :top-left (top-left-pos row-index col-index)
+   :top-right (top-right-pos row-index col-index)
+   :bottom-left (bottom-left-pos row-index col-index)
+   :bottom-right (bottom-right-pos row-index col-index)})
 
 (defn process-adjacents-pos
   "Accepts a map of adjacents as returned by find-adjacents-pos() and creates
@@ -63,12 +118,9 @@
              result (conj result [seat-state adjacents])]
          (recur result row-index (inc col-index)))))))
 
-(def seat-vector (process-input))
+(def seat-vector1 (process-input))
 
-; ---------------------------------------
-; problem 1
-
-(defn advance-seat
+(defn advance-seat-rules1
   "Returns a seat with the new state."
   [current-seats seat]
   (let [current-state (first seat)
@@ -80,34 +132,22 @@
       (and (= current-state '\#) (>= (count occupied-seats) 4)) ['\L adjacents]
       :else seat)))
 
-(defn seat-state-changed?
-  "Returns true if at least one seat has changed state, nil otherwise."
-  [old-seats new-seats]
-  (let [old-states (map #(first %) old-seats)
-        new-states (map #(first %) new-seats)]
-    (some false? (map #(= %1 %2) old-states new-states))))
-
-(defn run-simulation
+(defn run-simulation1
   "Runs a simulation and returns the seats when seat state stabilizes."
-  ([] (run-simulation 0 seat-vector))
+  ([] (run-simulation1 0 seat-vector1))
   ([iteration old-seats]
    (let [new-seats (reduce (fn [result seat]
-                              (conj result (advance-seat old-seats seat)))
+                              (conj result (advance-seat-rules1 old-seats seat)))
                             []
                             old-seats)]
      (if (not (seat-state-changed? old-seats new-seats))
        new-seats
        (recur (inc iteration) new-seats)))))
 
-(defn count-occupied
-  "Counts the number of occupied seats."
-  [seats]
-  (count (filter #(= '\# (first %)) seats)))
-
 ; ---------------------------------------
 ; results
 
-(def day11-1 (count-occupied (run-simulation)))
+(def day11-1 (count-occupied (run-simulation1)))
 
 (defn -main
   []
