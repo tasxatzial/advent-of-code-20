@@ -99,6 +99,16 @@
        new-seats
        (recur (inc iteration) new-seats)))))
 
+(defn count-occupied
+  "Counts the number of occupied seats."
+  [seats]
+  (count (filter #(= '\# (first %)) seats)))
+
+; ---------------------------------------
+; results
+
+(def day11-1 (count-occupied (run-simulation)))
+
 (defn -main
   []
-  (println (run-simulation)))
+  (println day11-1))
