@@ -63,18 +63,18 @@
              result (conj result [seat-state adjacents])]
          (recur result row-index (inc col-index)))))))
 
-(def seat-map (process-input))
+(def seat-vector (process-input))
 
 ; ---------------------------------------
 ; problem 1
 
-(defn next-seat-state
-  "Returns the new state of seat."
-  [seat]
+(defn advance-seat
+  "Returns a seat with the new state."
+  [current-seats seat]
   (let [current-state (first seat)
         adjacents (second seat)
-        adjacent-states (map #(get seat-map %) adjacents)
-        occupied-seats (filter #(= '\# %) adjacent-states)]
+        adjacent-seats (map #(get current-seats %) adjacents)
+        occupied-seats (filter #(= '\# (first %)) adjacent-seats)]
     (cond
       (and (= current-state '\L) (= (count occupied-seats) 0)) ['\# adjacents]
       (and (= current-state '\#) (>= (count occupied-seats) 4)) ['\L adjacents]
@@ -85,9 +85,20 @@
   [old-seats new-seats]
   (let [old-states (map #(first %) old-seats)
         new-states (map #(first %) new-seats)]
-    (do (println old-states)
-        (some false? (map #(= %1 %2) old-states new-states)))))
+    (some false? (map #(= %1 %2) old-states new-states))))
+
+(defn run-simulation
+  "Runs a simulation and returns the seats when seat state stabilizes."
+  ([] (run-simulation 0 seat-vector))
+  ([iteration old-seats]
+   (let [new-seats (reduce (fn [result seat]
+                              (conj result (advance-seat old-seats seat)))
+                            []
+                            old-seats)]
+     (if (not (seat-state-changed? old-seats new-seats))
+       new-seats
+       (recur (inc iteration) new-seats)))))
 
 (defn -main
   []
-  (println seat-map))
+  (println (run-simulation)))
