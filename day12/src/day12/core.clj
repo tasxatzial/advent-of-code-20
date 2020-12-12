@@ -78,6 +78,27 @@
 (def day12-1
   (+ (Math/abs ^Integer (:N (first final1))) (Math/abs ^Integer (:E (first final1)))))
 
+; ---------------------------------------
+; problem 2
+
+(defn rotate-right-90
+  "Clockwise rotation by 90 degrees."
+  [x y]
+  [y (* -1 x)])
+
+(defn rotate-180
+  "Clockwise rotation by 180 degrees."
+  [x y]
+  [(* -1 x) (* -1 y)])
+
+(defn rotate-right-270
+  "Clockwise rotation by 270 degrees."
+  [x y]
+  [(* -1 y ) x])
+
+; ---------------------------------------
+; results
+
 (defn -main
   []
   (println day12-1))
