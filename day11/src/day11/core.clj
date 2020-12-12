@@ -227,6 +227,9 @@
 
 (def day11-1 (count-occupied (run-simulation seat-vector1 advance-seat-rules1)))
 
+(def day11-2 (count-occupied (run-simulation seat-vector2 advance-seat-rules2)))
+
 (defn -main
   []
-  (println day11-1))
+  (println day11-1)                                         ;2299
+  (println day11-2))                                        ;2047
