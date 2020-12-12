@@ -157,7 +157,7 @@
 
 (def seat-vector2 (process-input2))
 
-; restrictions for the row-index, col-index in each direction
+; restrictions for the row-index, col-index for each direction
 (def directional-restrictions
   {:left #(>= (second %) 0)
    :right #(<= (second %) max-col)
@@ -167,6 +167,39 @@
    :top-right #(and (>= (first %) 0) (<= (second %) max-col))
    :bottom-right #(and (<= (first %) max-row) (<= (second %) max-col))
    :bottom-left #(and (<= (first %) max-row) (>= (second %) 0))})
+
+; mapping of directions to the function that returns the next [row-index, col-index]
+; at this direction
+(def directional-funcs
+  {:left left-pos
+   :right right-pos
+   :bottom bottom-pos
+   :top top-pos
+   :top-left top-left-pos
+   :top-right top-right-pos
+   :bottom-left bottom-left-pos
+   :bottom-right bottom-right-pos})
+
+(defn get-state
+  "Returns the state of seat pos. Seat is a 2 element vector [row-index, col-index]."
+  [current-seats pos]
+  (first (get current-seats (compute-seat-index pos))))
+
+(defn first-visible-pos
+  "Returns the first visible seat according to the description of problem 2."
+  [key current-seats pos]
+  (if (= '\. (get-state current-seats pos))
+    nil
+    (let [restrictions (key directional-restrictions)
+          directional-func (key directional-funcs)
+          directional-seats (iterate directional-func (directional-func pos))
+          until-visible (take-while #(and (restrictions %) (= (get-state current-seats %) '\.)) directional-seats)
+          found-pos (if (empty? until-visible)
+                      (directional-func pos)
+                      (directional-func (last until-visible)))]
+      (if (not (restrictions found-pos))
+        nil
+        found-pos))))
 
 ; ---------------------------------------
 ; results
