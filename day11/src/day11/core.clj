@@ -104,10 +104,10 @@
           '()
           adjacents))
 
-(defn process-input
+(defn process-input1
   "Processes the input returned by parse() and creates the appropriate structure
-  that represents the seats and their adjacent seats."
-  ([] (process-input [] 0 0))
+  that represents the seats and their adjacent seats (problem 1)"
+  ([] (process-input1 [] 0 0))
   ([result row-index col-index]
    (if (> row-index max-row)
      result
@@ -118,7 +118,7 @@
              result (conj result [seat-state adjacents])]
          (recur result row-index (inc col-index)))))))
 
-(def seat-vector1 (process-input))
+(def seat-vector1 (process-input1))
 
 (defn advance-seat-rules1
   "Returns a seat with the new state."
@@ -186,6 +186,19 @@
   "Returns all positions to the bottom-right of [row-index, col-index]."
   [row-index col-index]
   (iterate bottom-right-pos [row-index col-index]))
+
+(defn process-input2
+  "Processes the input returned by parse() and creates the appropriate structure
+  that represents the seats and their adjacent seats (problem 2)"
+  ([] (process-input2 [] 0 0))
+  ([result row-index col-index]
+   (if (> row-index max-row)
+     result
+     (if (> col-index max-col)
+       (recur result (inc row-index) 0)
+       (let [seat-state (get (get parsed-input row-index) col-index)
+             result (conj result [seat-state row-index col-index])]
+         (recur result row-index (inc col-index)))))))
 
 ; ---------------------------------------
 ; results
