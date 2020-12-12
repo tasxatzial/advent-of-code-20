@@ -25,21 +25,27 @@
           []
           parsed-input))
 
-; for each key, the elements in the vector correspond to a 90 right rotation
+; for each key, the elements in the vector correspond to a 90 clockwise rotation
 ; of the previous direction
 (def directions {:N [:E :S :W]
                  :E [:S :W :N]
                  :S [:W :N :E]
                  :W [:N :E :S]})
 
-(def init-pos {:N 0 :E 0})
-(def init-direction :E)
+(def ship-init-pos {:N 0 :E 0})
+
+(defn compute-manhattan
+  "Returns the manhattan distance of [x, y]."
+  [x y]
+  (+ (Math/abs ^Integer x) (Math/abs ^Integer y)))
 
 ; ---------------------------------------
 ; problem 1
 
-(defn new-direction1
-  "Returns the new direction (problem 1)"
+(def ship-init-direction :E)
+
+(defn new-ship-direction1
+  "Returns the new direction of the ship (problem 1)"
   [old-direction [cmd value]]
   (case value
     90 (case cmd
@@ -53,8 +59,8 @@
           old-direction)
     old-direction))
 
-(defn new-pos1
-  "Returns the new position (problem 1)"
+(defn new-ship-pos1
+  "Returns the new position of the ship (problem 1)"
   [direction pos [cmd value]]
   (case cmd
     :F (case direction
@@ -68,15 +74,13 @@
     pos))
 
 ; steer ship to the final position
-(def final1 (reduce (fn [[pos direction] instruction]
-                      [(new-pos1 direction pos instruction)
-                       (new-direction1 direction instruction)])
-                    [init-pos init-direction]
-                    instructions))
+(def destination1 (reduce (fn [[pos direction] instruction]
+                      [(new-ship-pos1 direction pos instruction)
+                       (new-ship-direction1 direction instruction)])
+                          [ship-init-pos ship-init-direction]
+                          instructions))
 
-; compute manhattan distance of the final position
-(def day12-1
-  (+ (Math/abs ^Integer (:N (first final1))) (Math/abs ^Integer (:E (first final1)))))
+(def day12-1 (compute-manhattan (:N (first destination1)) (:E (first destination1))))
 
 ; ---------------------------------------
 ; problem 2
@@ -94,9 +98,9 @@
 (defn rotate-right-270
   "Clockwise rotation by 270 degrees."
   [x y]
-  [(* -1 y ) x])
+  [(* -1 y) x])
 
-(defn move-ship
+(defn move-ship2
   "Returns the new position of the ship (problem 2)"
   [waypoint-pos ship-pos [cmd value]]
   (let [waypoint-N (:N waypoint-pos)
@@ -108,7 +112,7 @@
                          :E (+ ship-E (* waypoint-E value)))
       ship-pos)))
 
-(defn move-waypoint
+(defn move-waypoint2
   "Returns the new position of the waypoint (problem 2)"
   [{:keys [N E] :as pos} [cmd value]]
   (let [new-pos (case cmd
@@ -127,9 +131,20 @@
                   [E N])]
     (assoc pos :E (first new-pos) :N (second new-pos))))
 
+; steer ship and waypoint to their final positions
+(def destination2
+  (reduce (fn [[ship-pos waypoint-pos] instruction]
+            [(move-ship2 waypoint-pos ship-pos instruction)
+             (move-waypoint2 waypoint-pos instruction)])
+          [ship-init-pos {:N 1 :E 10}]
+          instructions))
+
+(def day12-2 (compute-manhattan (:N (first destination2)) (:E (first destination2))))
+
 ; ---------------------------------------
 ; results
 
 (defn -main
   []
-  (println day12-1))
+  (println day12-1)                                         ;1838
+  (println day12-2))                                        ;89936
