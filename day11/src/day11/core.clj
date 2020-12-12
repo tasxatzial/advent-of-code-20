@@ -128,7 +128,7 @@
 (def seat-vector1 (process-input1))
 
 (defn advance-seat-rules1
-  "Returns a seat with the new state."
+  "Returns the seat in its new state (problem 1)"
   [current-seats seat]
   (let [current-state (first seat)
         adjacents (second seat)
@@ -186,7 +186,7 @@
   (first (get current-seats (compute-seat-index pos))))
 
 (defn first-visible-pos
-  "Returns the first visible seat according to the description of problem 2."
+  "Returns the first visible seat (problem 2)"
   [key current-seats pos]
   (if (= '\. (get-state current-seats pos))
     nil
@@ -200,6 +200,27 @@
       (if (not (restrictions found-pos))
         nil
         found-pos))))
+
+(def directional-partial-funcs
+  [(partial first-visible-pos :left)
+   (partial first-visible-pos :right)
+   (partial first-visible-pos :bottom)
+   (partial first-visible-pos :top)
+   (partial first-visible-pos :top-left)
+   (partial first-visible-pos :top-right)
+   (partial first-visible-pos :bottom-left)
+   (partial first-visible-pos :bottom-right)])
+
+(defn advance-seat-rules2
+  "Returns the seat in its next state (problem 2)."
+  [current-seats [seat-state row-index col-index :as seat]]
+  (let [visible-positions (filter identity (map #(% current-seats [row-index col-index]) directional-partial-funcs))
+        seat-states (map #(get-state current-seats %) visible-positions)
+        occupied-seats (filter #(= '\# %) seat-states)]
+    (cond
+      (and (= seat-state '\L) (= (count occupied-seats) 0)) ['\# row-index col-index]
+      (and (= seat-state '\#) (>= (count occupied-seats) 5)) ['\L row-index col-index]
+      :else seat)))
 
 ; ---------------------------------------
 ; results
