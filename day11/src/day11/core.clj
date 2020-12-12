@@ -77,7 +77,7 @@
 
 (defn find-adjacents-pos
   "Returns a map of the adjacent coordinates of [row-index col-index]."
-  [row-index col-index]
+  [[row-index col-index]]
   {:left (left-pos row-index col-index)
    :right (right-pos row-index col-index)
    :top (top-pos row-index col-index)
@@ -113,7 +113,7 @@
      result
      (if (> col-index max-col)
        (recur result (inc row-index) 0)
-       (let [adjacents (process-adjacents-pos (find-adjacents-pos row-index col-index))
+       (let [adjacents (process-adjacents-pos (find-adjacents-pos [row-index col-index]))
              seat-state (get (get parsed-input row-index) col-index)
              result (conj result [seat-state adjacents])]
          (recur result row-index (inc col-index)))))))
@@ -143,6 +143,49 @@
      (if (not (seat-state-changed? old-seats new-seats))
        new-seats
        (recur (inc iteration) new-seats)))))
+
+; ---------------------------------------
+; problem 2
+
+(defn all-left-pos
+  "Returns all positions to the left of [row-index, col-index]."
+  [row-index col-index]
+  (iterate left-pos [row-index col-index]))
+
+(defn all-right-pos
+  "Returns all positions to the right of [row-index, col-index]."
+  [row-index col-index]
+  (iterate right-pos [row-index col-index]))
+
+(defn all-bottom-pos
+  "Returns all positions to the bottom of [row-index, col-index]."
+  [row-index col-index]
+  (iterate bottom-pos [row-index col-index]))
+
+(defn all-top-pos
+  "Returns all positions to the top of [row-index, col-index]."
+  [row-index col-index]
+  (iterate right-pos [row-index col-index]))
+
+(defn all-top-left-pos
+  "Returns all positions to the top-left of [row-index, col-index]."
+  [row-index col-index]
+  (iterate top-left-pos [row-index col-index]))
+
+(defn all-top-right-pos
+  "Returns all positions to the top-left of [row-index, col-index]."
+  [row-index col-index]
+  (iterate top-right-pos [row-index col-index]))
+
+(defn all-bottom-left-pos
+  "Returns all positions to the bottom-left of [row-index, col-index]."
+  [row-index col-index]
+  (iterate bottom-left-pos [row-index col-index]))
+
+(defn all-bottom-right-pos
+  "Returns all positions to the bottom-right of [row-index, col-index]."
+  [row-index col-index]
+  (iterate bottom-right-pos [row-index col-index]))
 
 ; ---------------------------------------
 ; results
