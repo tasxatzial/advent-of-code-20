@@ -96,6 +96,18 @@
   [x y]
   [(* -1 y ) x])
 
+(defn move-ship
+  "Returns the new position of the ship (problem 2)"
+  [waypoint-pos ship-pos [cmd value]]
+  (let [waypoint-N (:N waypoint-pos)
+        waypoint-E (:E waypoint-pos)
+        ship-N (:N ship-pos)
+        ship-E (:E ship-pos)]
+    (case cmd
+      :F (assoc ship-pos :N (+ ship-N (* waypoint-N value))
+                         :E (+ ship-E (* waypoint-E value)))
+      ship-pos)))
+
 ; ---------------------------------------
 ; results
 
