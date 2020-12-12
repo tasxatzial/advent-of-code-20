@@ -17,7 +17,7 @@
 
 (defn compute-seat-index
   "Returns the index of a seat at coordinates [row-index, col-index]."
-  [row-index col-index]
+  [[row-index col-index]]
   (+ col-index (* row-index (inc max-col))))
 
 (defn seat-state-changed?
@@ -34,73 +34,80 @@
 
 (defn left-pos
   "Returns the position to the left of [row-index, col-index]."
-  [row-index col-index]
+  [[row-index col-index]]
   [row-index (dec col-index)])
 
 (defn right-pos
   "Returns the position to the right of [row-index, col-index]."
-  [row-index col-index]
+  [[row-index col-index]]
   [row-index (inc col-index)])
 
 (defn bottom-pos
   "Returns the position to the bottom of [row-index, col-index]."
-  [row-index col-index]
+  [[row-index col-index]]
   [(inc row-index) col-index])
 
 (defn top-pos
   "Returns the position to the top of [row-index, col-index]."
-  [row-index col-index]
+  [[row-index col-index]]
   [(dec row-index) col-index])
 
 (defn top-left-pos
   "Returns the position to the top-left of [row-index, col-index]."
-  [row-index col-index]
+  [[row-index col-index]]
   [(dec row-index) (dec col-index)])
 
 (defn top-right-pos
   "Returns the position to the top-left of [row-index, col-index]."
-  [row-index col-index]
+  [[row-index col-index]]
   [(dec row-index) (inc col-index)])
 
 (defn bottom-left-pos
   "Returns the position to the bottom-left of [row-index, col-index]."
-  [row-index col-index]
+  [[row-index col-index]]
   [(inc row-index) (dec col-index)])
 
 (defn bottom-right-pos
   "Returns the position to the bottom-right of [row-index, col-index]."
-  [row-index col-index]
+  [[row-index col-index]]
   [(inc row-index) (inc col-index)])
+
+(defn run-simulation
+  "Runs a simulation and returns the seats when seat state stabilizes."
+  ([seat-vector advance-seat-rules] (run-simulation 0 seat-vector advance-seat-rules))
+  ([iteration old-seats advance-seat-rules]
+   (let [new-seats (reduce (fn [result seat]
+                             (conj result (advance-seat-rules old-seats seat)))
+                           []
+                           old-seats)]
+     (if (not (seat-state-changed? old-seats new-seats))
+       new-seats
+       (recur (inc iteration) new-seats advance-seat-rules)))))
 
 ; ---------------------------------------
 ; problem 1
 
 (defn find-adjacents-pos
   "Returns a map of the adjacent coordinates of [row-index col-index]."
-  [[row-index col-index]]
-  {:left (left-pos row-index col-index)
-   :right (right-pos row-index col-index)
-   :top (top-pos row-index col-index)
-   :bottom (bottom-pos row-index col-index)
-   :top-left (top-left-pos row-index col-index)
-   :top-right (top-right-pos row-index col-index)
-   :bottom-left (bottom-left-pos row-index col-index)
-   :bottom-right (bottom-right-pos row-index col-index)})
+  [pos]
+  {:left (left-pos pos)
+   :right (right-pos pos)
+   :top (top-pos pos)
+   :bottom (bottom-pos pos)
+   :top-left (top-left-pos pos)
+   :top-right (top-right-pos pos)
+   :bottom-left (bottom-left-pos pos)
+   :bottom-right (bottom-right-pos pos)})
 
 (defn process-adjacents-pos
   "Accepts a map of adjacents as returned by find-adjacents-pos() and creates
   a list of seat keys that correspond to these adjacents. Invalid positions from
   the map are not taken into account."
   [adjacents]
-  (reduce (fn [result [pos-name adjacent-pos]]
-            (let [row-index (first adjacent-pos)
-                  col-index (second adjacent-pos)]
-              (if (and (>= row-index 0)
-                       (<= row-index max-row)
-                       (>= col-index 0)
-                       (<= col-index max-col))
-                (conj result (compute-seat-index row-index col-index))
-                result)))
+  (reduce (fn [result [pos-key [row-index col-index]]]
+            (if (and (>= row-index 0) (<= row-index max-row) (>= col-index 0) (<= col-index max-col))
+              (conj result (compute-seat-index [row-index col-index]))
+              result))
           '()
           adjacents))
 
@@ -132,60 +139,8 @@
       (and (= current-state '\#) (>= (count occupied-seats) 4)) ['\L adjacents]
       :else seat)))
 
-(defn run-simulation1
-  "Runs a simulation and returns the seats when seat state stabilizes."
-  ([] (run-simulation1 0 seat-vector1))
-  ([iteration old-seats]
-   (let [new-seats (reduce (fn [result seat]
-                              (conj result (advance-seat-rules1 old-seats seat)))
-                            []
-                            old-seats)]
-     (if (not (seat-state-changed? old-seats new-seats))
-       new-seats
-       (recur (inc iteration) new-seats)))))
-
 ; ---------------------------------------
 ; problem 2
-
-(defn all-left-pos
-  "Returns all positions to the left of [row-index, col-index]."
-  [row-index col-index]
-  (iterate left-pos [row-index col-index]))
-
-(defn all-right-pos
-  "Returns all positions to the right of [row-index, col-index]."
-  [row-index col-index]
-  (iterate right-pos [row-index col-index]))
-
-(defn all-bottom-pos
-  "Returns all positions to the bottom of [row-index, col-index]."
-  [row-index col-index]
-  (iterate bottom-pos [row-index col-index]))
-
-(defn all-top-pos
-  "Returns all positions to the top of [row-index, col-index]."
-  [row-index col-index]
-  (iterate right-pos [row-index col-index]))
-
-(defn all-top-left-pos
-  "Returns all positions to the top-left of [row-index, col-index]."
-  [row-index col-index]
-  (iterate top-left-pos [row-index col-index]))
-
-(defn all-top-right-pos
-  "Returns all positions to the top-left of [row-index, col-index]."
-  [row-index col-index]
-  (iterate top-right-pos [row-index col-index]))
-
-(defn all-bottom-left-pos
-  "Returns all positions to the bottom-left of [row-index, col-index]."
-  [row-index col-index]
-  (iterate bottom-left-pos [row-index col-index]))
-
-(defn all-bottom-right-pos
-  "Returns all positions to the bottom-right of [row-index, col-index]."
-  [row-index col-index]
-  (iterate bottom-right-pos [row-index col-index]))
 
 (defn process-input2
   "Processes the input returned by parse() and creates the appropriate structure
@@ -200,10 +155,11 @@
              result (conj result [seat-state row-index col-index])]
          (recur result row-index (inc col-index)))))))
 
+
 ; ---------------------------------------
 ; results
 
-(def day11-1 (count-occupied (run-simulation1)))
+(def day11-1 (count-occupied (run-simulation seat-vector1 advance-seat-rules1)))
 
 (defn -main
   []
