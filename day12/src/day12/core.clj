@@ -47,6 +47,19 @@
           old-direction)
     old-direction))
 
+(defn new-pos
+  [direction pos [cmd value]]
+  (case cmd
+    :F (case direction
+         :S (assoc pos :N (- (:N pos) value))
+         :W (assoc pos :E (- (:E pos) value))
+         (assoc pos direction (+ (direction pos) value)))
+    :N (assoc pos :N (+ (:N pos) value))
+    :E (assoc pos :E (+ (:E pos) value))
+    :S (assoc pos :N (- (:N pos) value))
+    :W (assoc pos :E (- (:E pos) value))
+    pos))
+
 (defn -main
   []
   (println instructions))
