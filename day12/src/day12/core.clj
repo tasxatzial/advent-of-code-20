@@ -108,6 +108,25 @@
                          :E (+ ship-E (* waypoint-E value)))
       ship-pos)))
 
+(defn move-waypoint
+  "Returns the new position of the waypoint (problem 2)"
+  [{:keys [N E] :as pos} [cmd value]]
+  (let [new-pos (case cmd
+                  :N [E (+ N value) ]
+                  :E [(+ E value) N]
+                  :S [E (- N value)]
+                  :W [(- E value) N]
+                  :R (case value
+                       90 (rotate-right-90 E N)
+                       180 (rotate-180 E N)
+                       270 (rotate-right-270 E N))
+                  :L (case value
+                       90 (rotate-right-270 E N)
+                       180 (rotate-180 E N)
+                       270 (rotate-right-90 E N))
+                  [E N])]
+    (assoc pos :E (first new-pos) :N (second new-pos))))
+
 ; ---------------------------------------
 ; results
 
