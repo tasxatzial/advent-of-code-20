@@ -155,6 +155,18 @@
              result (conj result [seat-state row-index col-index])]
          (recur result row-index (inc col-index)))))))
 
+(def seat-vector2 (process-input2))
+
+; restrictions for the row-index, col-index in each direction
+(def directional-restrictions
+  {:left #(>= (second %) 0)
+   :right #(<= (second %) max-col)
+   :bottom #(<= (first %) max-row)
+   :top #(>= (first %) 0)
+   :top-left #(and (>= (first %) 0) (>= (second %) 0))
+   :top-right #(and (>= (first %) 0) (<= (second %) max-col))
+   :bottom-right #(and (<= (first %) max-row) (<= (second %) max-col))
+   :bottom-left #(and (<= (first %) max-row) (>= (second %) 0))})
 
 ; ---------------------------------------
 ; results
