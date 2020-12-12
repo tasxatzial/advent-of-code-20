@@ -27,50 +27,41 @@
         new-states (map #(first %) new-seats)]
     (some false? (map #(= %1 %2) old-states new-states))))
 
-(defn count-occupied
+(defn count-occupied-seats
   "Counts the number of occupied seats."
   [seats]
   (count (filter #(= '\# (first %)) seats)))
 
-(defn left-pos
-  "Returns the position to the left of [row-index, col-index]."
-  [[row-index col-index]]
-  [row-index (dec col-index)])
+; mapping of directions to the function that returns the next [row-index, col-index]
+; at this direction
+(def directional-funcs
+  {:left (fn [[row-index col-index]]
+           [row-index (dec col-index)])
+   :right (fn [[row-index col-index]]
+            [row-index (inc col-index)])
+   :bottom (fn [[row-index col-index]]
+             [(inc row-index) col-index])
+   :top (fn [[row-index col-index]]
+          [(dec row-index) col-index])
+   :top-left (fn [[row-index col-index]]
+               [(dec row-index) (dec col-index)])
+   :top-right (fn [[row-index col-index]]
+                [(dec row-index) (inc col-index)])
+   :bottom-left (fn [[row-index col-index]]
+                  [(inc row-index) (dec col-index)])
+   :bottom-right (fn [[row-index col-index]]
+                   [(inc row-index) (inc col-index)])})
 
-(defn right-pos
-  "Returns the position to the right of [row-index, col-index]."
-  [[row-index col-index]]
-  [row-index (inc col-index)])
-
-(defn bottom-pos
-  "Returns the position to the bottom of [row-index, col-index]."
-  [[row-index col-index]]
-  [(inc row-index) col-index])
-
-(defn top-pos
-  "Returns the position to the top of [row-index, col-index]."
-  [[row-index col-index]]
-  [(dec row-index) col-index])
-
-(defn top-left-pos
-  "Returns the position to the top-left of [row-index, col-index]."
-  [[row-index col-index]]
-  [(dec row-index) (dec col-index)])
-
-(defn top-right-pos
-  "Returns the position to the top-left of [row-index, col-index]."
-  [[row-index col-index]]
-  [(dec row-index) (inc col-index)])
-
-(defn bottom-left-pos
-  "Returns the position to the bottom-left of [row-index, col-index]."
-  [[row-index col-index]]
-  [(inc row-index) (dec col-index)])
-
-(defn bottom-right-pos
-  "Returns the position to the bottom-right of [row-index, col-index]."
-  [[row-index col-index]]
-  [(inc row-index) (inc col-index)])
+; restrictions for the row-index, col-index for each direction
+(def directional-restrictions
+  {:left #(>= (second %) 0)
+   :right #(<= (second %) max-col)
+   :bottom #(<= (first %) max-row)
+   :top #(>= (first %) 0)
+   :top-left #(and (>= (first %) 0) (>= (second %) 0))
+   :top-right #(and (>= (first %) 0) (<= (second %) max-col))
+   :bottom-right #(and (<= (first %) max-row) (<= (second %) max-col))
+   :bottom-left #(and (<= (first %) max-row) (>= (second %) 0))})
 
 (defn run-simulation
   "Runs a simulation and returns the seats when seat state stabilizes."
@@ -87,45 +78,36 @@
 ; ---------------------------------------
 ; problem 1
 
-(defn find-adjacents-pos
-  "Returns a map of the adjacent coordinates of [row-index col-index]."
-  [pos]
-  {:left (left-pos pos)
-   :right (right-pos pos)
-   :top (top-pos pos)
-   :bottom (bottom-pos pos)
-   :top-left (top-left-pos pos)
-   :top-right (top-right-pos pos)
-   :bottom-left (bottom-left-pos pos)
-   :bottom-right (bottom-right-pos pos)})
-
-(defn process-adjacents-pos
-  "Accepts a map of adjacents as returned by find-adjacents-pos() and creates
-  a list of seat keys that correspond to these adjacents. Invalid positions from
-  the map are not taken into account."
+(defn keys-from-adjacents-pos
+  "Accepts a list of adjacents positions [i, j] and creates the corresponding list of seat keys.
+  Invalid positions are not taken into account."
   [adjacents]
-  (reduce (fn [result [pos-key [row-index col-index]]]
-            (if (and (>= row-index 0) (<= row-index max-row) (>= col-index 0) (<= col-index max-col))
-              (conj result (compute-seat-index [row-index col-index]))
+  (reduce (fn [result seat]
+            (if (and ((:left directional-restrictions) seat)
+                     ((:right directional-restrictions) seat)
+                     ((:top directional-restrictions) seat)
+                     ((:bottom directional-restrictions) seat))
+              (conj result (compute-seat-index seat))
               result))
           '()
           adjacents))
 
-(defn process-input1
+(defn create-seats1
   "Processes the input returned by parse() and creates the appropriate structure
   that represents the seats and their adjacent seats (problem 1)"
-  ([] (process-input1 [] 0 0))
+  ([] (create-seats1 [] 0 0))
   ([result row-index col-index]
    (if (> row-index max-row)
      result
      (if (> col-index max-col)
        (recur result (inc row-index) 0)
-       (let [adjacents (process-adjacents-pos (find-adjacents-pos [row-index col-index]))
+       (let [adjacents-pos (map #(% [row-index col-index]) (map #(second %) directional-funcs))
+             adjacents (keys-from-adjacents-pos adjacents-pos)
              seat-state (get (get parsed-input row-index) col-index)
              result (conj result [seat-state adjacents])]
          (recur result row-index (inc col-index)))))))
 
-(def seat-vector1 (process-input1))
+(def seats1 (create-seats1))
 
 (defn advance-seat-rules1
   "Returns the seat in its new state (problem 1)"
@@ -142,10 +124,10 @@
 ; ---------------------------------------
 ; problem 2
 
-(defn process-input2
+(defn create-seats2
   "Processes the input returned by parse() and creates the appropriate structure
   that represents the seats and their adjacent seats (problem 2)"
-  ([] (process-input2 [] 0 0))
+  ([] (create-seats2 [] 0 0))
   ([result row-index col-index]
    (if (> row-index max-row)
      result
@@ -155,79 +137,47 @@
              result (conj result [seat-state row-index col-index])]
          (recur result row-index (inc col-index)))))))
 
-(def seat-vector2 (process-input2))
+(def seats2 (create-seats2))
 
-; restrictions for the row-index, col-index for each direction
-(def directional-restrictions
-  {:left #(>= (second %) 0)
-   :right #(<= (second %) max-col)
-   :bottom #(<= (first %) max-row)
-   :top #(>= (first %) 0)
-   :top-left #(and (>= (first %) 0) (>= (second %) 0))
-   :top-right #(and (>= (first %) 0) (<= (second %) max-col))
-   :bottom-right #(and (<= (first %) max-row) (<= (second %) max-col))
-   :bottom-left #(and (<= (first %) max-row) (>= (second %) 0))})
-
-; mapping of directions to the function that returns the next [row-index, col-index]
-; at this direction
-(def directional-funcs
-  {:left left-pos
-   :right right-pos
-   :bottom bottom-pos
-   :top top-pos
-   :top-left top-left-pos
-   :top-right top-right-pos
-   :bottom-left bottom-left-pos
-   :bottom-right bottom-right-pos})
-
-(defn get-state
+(defn get-seat-state
   "Returns the state of seat pos. Seat is a 2 element vector [row-index, col-index]."
   [current-seats pos]
   (first (get current-seats (compute-seat-index pos))))
 
 (defn first-visible-pos
-  "Returns the first visible seat (problem 2)"
+  "Returns the first visible position (problem 2)"
   [key current-seats pos]
-  (if (= '\. (get-state current-seats pos))
+  (if (= '\. (get-seat-state current-seats pos))
     nil
     (let [restrictions (key directional-restrictions)
           directional-func (key directional-funcs)
-          directional-seats (iterate directional-func (directional-func pos))
-          until-visible (take-while #(and (restrictions %) (= (get-state current-seats %) '\.)) directional-seats)
-          found-pos (if (empty? until-visible)
+          directional-positions (iterate directional-func (directional-func pos))
+          visible-positions (take-while #(and (restrictions %) (= (get-seat-state current-seats %) '\.)) directional-positions)
+          found-pos (if (empty? visible-positions)
                       (directional-func pos)
-                      (directional-func (last until-visible)))]
+                      (directional-func (last visible-positions)))]
       (if (not (restrictions found-pos))
         nil
         found-pos))))
 
-(def directional-partial-funcs
-  [(partial first-visible-pos :left)
-   (partial first-visible-pos :right)
-   (partial first-visible-pos :bottom)
-   (partial first-visible-pos :top)
-   (partial first-visible-pos :top-left)
-   (partial first-visible-pos :top-right)
-   (partial first-visible-pos :bottom-left)
-   (partial first-visible-pos :bottom-right)])
-
 (defn advance-seat-rules2
   "Returns the seat in its next state (problem 2)."
   [current-seats [seat-state row-index col-index :as seat]]
-  (let [visible-positions (filter identity (map #(% current-seats [row-index col-index]) directional-partial-funcs))
-        seat-states (map #(get-state current-seats %) visible-positions)
-        occupied-seats (filter #(= '\# %) seat-states)]
+  (let [directional-positions (map #(partial first-visible-pos (first %)) directional-funcs)
+        visible-seats (filter identity (map #(% current-seats [row-index col-index]) directional-positions))
+        visible-states (map #(get-seat-state current-seats %) visible-seats)
+        occupied-seat-states (filter #(= '\# %) visible-states)]
     (cond
-      (and (= seat-state '\L) (= (count occupied-seats) 0)) ['\# row-index col-index]
-      (and (= seat-state '\#) (>= (count occupied-seats) 5)) ['\L row-index col-index]
+      (and (= seat-state '\L) (= (count occupied-seat-states) 0)) ['\# row-index col-index]
+      (and (= seat-state '\#) (>= (count occupied-seat-states) 5)) ['\L row-index col-index]
       :else seat)))
 
 ; ---------------------------------------
 ; results
 
-(def day11-1 (count-occupied (run-simulation seat-vector1 advance-seat-rules1)))
+(def day11-1 (count-occupied-seats (run-simulation seats1 advance-seat-rules1)))
 
-(def day11-2 (count-occupied (run-simulation seat-vector2 advance-seat-rules2)))
+(def day11-2 (count-occupied-seats (run-simulation seats2 advance-seat-rules2)))
 
 (defn -main
   []
