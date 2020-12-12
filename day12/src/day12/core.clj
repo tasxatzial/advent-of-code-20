@@ -7,6 +7,7 @@
 (def input-file "resources\\input.txt")
 
 (defn str->int
+  "Converts a string to integer."
   [^String s]
   (Integer. s))
 
@@ -24,16 +25,21 @@
           []
           parsed-input))
 
-; for each key, the vector corresponds to a 90 rotation to the right
+; for each key, the elements in the vector correspond to a 90 right rotation
+; of the previous direction
 (def directions {:N [:E :S :W]
                  :E [:S :W :N]
                  :S [:W :N :E]
                  :W [:N :E :S]})
 
+(def init-pos {:N 0 :E 0})
+(def init-direction :E)
+
 ; ---------------------------------------
 ; problem 1
 
-(defn new-direction
+(defn new-direction1
+  "Returns the new direction (problem 1)"
   [old-direction [cmd value]]
   (case value
     90 (case cmd
@@ -47,7 +53,8 @@
           old-direction)
     old-direction))
 
-(defn new-pos
+(defn new-pos1
+  "Returns the new position (problem 1)"
   [direction pos [cmd value]]
   (case cmd
     :F (case direction
@@ -60,6 +67,17 @@
     :W (assoc pos :E (- (:E pos) value))
     pos))
 
+; steer ship to the final position
+(def final1 (reduce (fn [[pos direction] instruction]
+                      [(new-pos1 direction pos instruction)
+                       (new-direction1 direction instruction)])
+                    [init-pos init-direction]
+                    instructions))
+
+; compute manhattan distance of the final position
+(def day12-1
+  (+ (Math/abs ^Integer (:N (first final1))) (Math/abs ^Integer (:E (first final1)))))
+
 (defn -main
   []
-  (println instructions))
+  (println day12-1))
