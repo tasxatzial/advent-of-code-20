@@ -51,6 +51,11 @@
         bus-timestamps (map #(vector %1 %2) bus-ids2 timestamps)]
     (filter #(not= "x" (first %)) bus-timestamps)))
 
+; remove from timestamps the bus ids 577 and 601
+(def final-timestamps
+  (let [filtered-timestamps (filter #(and (not= "601" (first %)) (not= "577" (first %))) relative-timestamps)]
+    (map #(vector (str->int (first %)) (second %)) filtered-timestamps)))
+
 ; ---------------------------------------
 ; results
 
@@ -61,4 +66,4 @@
 (defn -main
   []
   (println day13-1)                                         ;174
-  (println relative-timestamps))
+  (println final-timestamps))
