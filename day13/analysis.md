@@ -49,7 +49,7 @@ So one solution is (k7, k3) = (-744, -775). Other solutions will have the form:
     k7 = -744 - 577 * X
     k3 = -775 - 601 * X
 
-where X is integer. Now, we are interested in the value of t. Let's substitibe the last
+where X is integer. Now, we are interested in the value of t. Let's substitute the last
 equation to the equation from the initial system:
 
     t = 577 * k3 - 29
@@ -59,6 +59,6 @@ equation to the equation from the initial system:
     => t = -447175 - 346777 * X - 29
     => t = -447204 - 346777 * X
 
-This narrows down a lot the values of t that we need to check. To speed the process even
+This narrows down a lot the values of t that we need to check. To speed up the process even
 more, we can skip checking the buses with ids 577 and 601 since the corresponding
 equations are already satisfied.
