@@ -6,10 +6,10 @@
 
 (def input-file "resources\\input.txt")
 
-(defn str->int
-  "Converts a string to integer."
+(defn str->BigInt
+  "Converts a string to Big integer."
   [^String s]
-  (Integer. s))
+  (BigInteger. s))
 
 (defn parse
   "Splits the input string by \n."
@@ -21,8 +21,8 @@
 ; ---------------------------------------
 ; problem 1
 
-(def timestamp (str->int (first parsed-input)))
-(def bus-ids1 (map str->int (filter #(not= "x" %) (clojure.string/split (second parsed-input) #","))))
+(def timestamp (str->BigInt (first parsed-input)))
+(def bus-ids1 (map str->BigInt (filter #(not= "x" %) (clojure.string/split (second parsed-input) #","))))
 
 (defn calculate-bus-wait-time
   "Returns the bus ids along with the time we'll have to wait each bus."
@@ -54,7 +54,17 @@
 ; remove from timestamps the bus ids 577 and 601
 (def final-timestamps
   (let [filtered-timestamps (filter #(and (not= "601" (first %)) (not= "577" (first %))) relative-timestamps)]
-    (map #(vector (str->int (first %)) (second %)) filtered-timestamps)))
+    (map #(vector (str->BigInt (first %)) (second %)) filtered-timestamps)))
+
+(defn check-t?
+  "Returns true if t satisfies the requirements for problem 2."
+  [t timestamps]
+  (if (empty? timestamps)
+    true
+    (let [timestamp (first timestamps)]
+      (if (= 0 (/ (+ t (second timestamp)) (first timestamp)))
+        (check-t? t (rest timestamps))
+        false))))
 
 ; ---------------------------------------
 ; results
