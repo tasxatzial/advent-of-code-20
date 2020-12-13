@@ -17,17 +17,18 @@
   (clojure.string/split s #"\n"))
 
 (def parsed-input (parse (slurp input-file)))
-(def timestamp (str->int (first parsed-input)))
-(def bus-ids (map str->int (filter #(not= "x" %) (clojure.string/split (second parsed-input) #","))))
 
 ; ---------------------------------------
 ; problem 1
 
+(def timestamp (str->int (first parsed-input)))
+(def bus-ids1 (map str->int (filter #(not= "x" %) (clojure.string/split (second parsed-input) #","))))
+
 (defn calculate-bus-wait-time
   "Returns the bus ids along with the time we'll have to wait each bus."
   []
-  (let [minutes-wait (map #(- % (mod timestamp %)) bus-ids)]
-    (map #(vector %1 %2) bus-ids minutes-wait)))
+  (let [minutes-wait (map #(- % (mod timestamp %)) bus-ids1)]
+    (map #(vector %1 %2) bus-ids1 minutes-wait)))
 
 (defn find-earliest-bus
   "Finds the earliest bus id we can take, along with the waiting time for that bus."
@@ -40,6 +41,17 @@
           bus-wait-times))
 
 ; ---------------------------------------
+; problem 2
+
+(def bus-ids2 (clojure.string/split (second parsed-input) #","))
+
+; a list of known bus ids along with their required relative timestamps
+(def relative-timestamps
+  (let [timestamps (take (count bus-ids2) (iterate inc 0))
+        bus-timestamps (map #(vector %1 %2) bus-ids2 timestamps)]
+    (filter #(not= "x" (first %)) bus-timestamps)))
+
+; ---------------------------------------
 ; results
 
 (def day13-1 (let [bus-wait-times (calculate-bus-wait-time)
@@ -48,4 +60,5 @@
 
 (defn -main
   []
-  (println day13-1))                                        ;174
+  (println day13-1)                                         ;174
+  (println relative-timestamps))
