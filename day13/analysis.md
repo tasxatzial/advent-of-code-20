@@ -60,5 +60,5 @@ equation to the equation from the initial system:
     => t = -447204 - 346777 * X
 
 This narrows down a lot the values of t that we need to check. To speed the process even
-more, we can even skip the checking the buses with ids 577 and 601 since the corresponding
+more, we can skip checking the buses with ids 577 and 601 since the corresponding
 equations are already satisfied.

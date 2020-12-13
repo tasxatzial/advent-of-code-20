@@ -6,10 +6,10 @@
 
 (def input-file "resources\\input.txt")
 
-(defn str->BigInt
-  "Converts a string to Big integer."
+(defn str->Long
+  "Converts a string to Long."
   [^String s]
-  (BigInteger. s))
+  (Long. s))
 
 (defn parse
   "Splits the input string by \n."
@@ -21,8 +21,8 @@
 ; ---------------------------------------
 ; problem 1
 
-(def timestamp (str->BigInt (first parsed-input)))
-(def bus-ids1 (map str->BigInt (filter #(not= "x" %) (clojure.string/split (second parsed-input) #","))))
+(def timestamp (str->Long (first parsed-input)))
+(def bus-ids1 (map str->Long (filter #(not= "x" %) (clojure.string/split (second parsed-input) #","))))
 
 (defn calculate-bus-wait-time
   "Returns the bus ids along with the time we'll have to wait each bus."
@@ -52,19 +52,31 @@
     (filter #(not= "x" (first %)) bus-timestamps)))
 
 ; remove from timestamps the bus ids 577 and 601
-(def final-timestamps
+(def final-relative-timestamps
   (let [filtered-timestamps (filter #(and (not= "601" (first %)) (not= "577" (first %))) relative-timestamps)]
-    (map #(vector (str->BigInt (first %)) (second %)) filtered-timestamps)))
+    (map #(vector (str->Long (first %)) (second %)) filtered-timestamps)))
 
 (defn check-t?
   "Returns true if t satisfies the requirements for problem 2."
-  [t timestamps]
-  (if (empty? timestamps)
+  [t relative-timestamps]
+  (if (empty? relative-timestamps)
     true
-    (let [timestamp (first timestamps)]
-      (if (= 0 (/ (+ t (second timestamp)) (first timestamp)))
-        (check-t? t (rest timestamps))
+    (let [timestamp (first relative-timestamps)]
+      (if (= 0 (mod (+ t (second timestamp)) (first timestamp)))
+        (check-t? t (rest relative-timestamps))
         false))))
+
+(def A (Long. "-447204"))
+(def B (Long. "346777"))
+(def starting-timestamp (+ A (* 2 B)))
+
+(defn find-min-timestamp
+  "Returns the min timestamp t that satisfies the requirements for problem 2."
+  ([] (find-min-timestamp starting-timestamp))
+  ([timestamp]
+   (if (check-t? timestamp final-relative-timestamps)
+     timestamp
+     (recur (+ timestamp B)))))
 
 ; ---------------------------------------
 ; results
@@ -73,7 +85,9 @@
                    min-bus (find-earliest-bus bus-wait-times)]
                (* (first min-bus) (second min-bus))))
 
+(def day13-2 (find-min-timestamp))
+
 (defn -main
   []
-  (println day13-1)                                         ;174
-  (println final-timestamps))
+  (println day13-1)                            ;174
+  (println day13-2))                           ;780601154795940
