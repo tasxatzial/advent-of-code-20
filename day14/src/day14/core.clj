@@ -128,6 +128,24 @@
                        :else '\X)]
        (apply-mask2 (rest mask) (rest value) (conj result new-value))))))
 
+(defn create-all-values
+  "Returns all possible addresses given a value with floating bits."
+  ([value] (create-all-values value [] []))
+  ([value address result]
+   (if (empty? value)
+     (apply str address)
+     (if (not= '\X (first value))
+       (recur (rest value) (conj address (first value)) result)
+       (let [address0 (create-all-values (rest value) (conj address '\0) result)
+             address1 (create-all-values (rest value) (conj address '\1) result)]
+         (conj result address0 address1))))))
+
+(defn create-all-addresses
+  "Take the collection of values returned by create-all-values()
+  and returns a list with keys of the corresponding addresses."
+  [values]
+  (map #(keyword (str (Long/parseLong % 2))) (flatten values)))
+
 ; ---------------------------------------
 ; results
 
