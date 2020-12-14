@@ -81,6 +81,15 @@
 (def docking-instructions
   (map #(vector %1 %2) masks mems))
 
+(defn apply-mask-mem-block
+  "Applies a mask to a block of memory instructions,
+  these are all the instructions between two masks in the input file"
+  [mask mem-block]
+  (reduce (fn [result mem]
+            (assoc result (keyword (str (first mem))) (apply-mask mask (second mem))))
+          {}
+          mem-block))
+
 ; ---------------------------------------
 ; results
 
