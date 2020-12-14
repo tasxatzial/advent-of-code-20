@@ -37,6 +37,19 @@
     (parse-mask line)
     (parse-mem line)))
 
+(defn apply-mask
+  "Applies a mask to a given value."
+  ([mask value] (apply-mask mask value []))
+  ([mask value result]
+   (if (empty? mask)
+     (apply str result)
+     (cond
+       (= (first mask) '\X) (apply-mask (rest mask) (rest value) (conj result (first value)))
+       :else (apply-mask (rest mask) (rest value) (conj result (first mask)))))))
+
+; ---------------------------------------
+; problem 1
+
 ; ---------------------------------------
 ; results
 
