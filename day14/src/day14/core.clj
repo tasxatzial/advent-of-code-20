@@ -18,16 +18,21 @@
   [mask-line]
   (second (clojure.string/split mask-line #" = ")))
 
+(defn to-binary
+  "Covert an integer to a 36-bit binary string."
+  [num]
+  (let [binary-value (Integer/toBinaryString num)
+        padding (apply str (take (- 36 (count binary-value)) (repeat "0")))]
+    (str padding binary-value)))
+
 (defn parse-mem
   "Parses a mem line from the input file and returns a two element
   vector, first one is the mem address (int), second one is the value in binary
   format (string)"
   [mem-line]
   (let [split-line (filter #(boolean (seq %)) (clojure.string/split mem-line #"[^\d]+"))
-        integer-line (map #(Integer. ^String %) split-line)
-        binary-value (Integer/toBinaryString (second integer-line))
-        padding (apply str (take (- 36 (count binary-value)) (repeat "0")))]
-    [(first integer-line) (str padding binary-value)]))
+        integer-line (map #(Integer. ^String %) split-line)]
+    [(first integer-line) (second integer-line)]))
 
 (defn mask?
   "Returns true if the line is a mask."
@@ -72,11 +77,11 @@
 ; problem 1
 
 (defn apply-mask1
-  "Applies a mask to a given value (problem 1)"
-  ([mask value] (apply-mask1 mask value []))
+  "Applies a mask to a given value (problem 1) and returns the new value."
+  ([mask value] (apply-mask1 mask (to-binary value) []))
   ([mask value result]
    (if (empty? mask)
-     (apply str result)
+     (Long/parseLong (apply str result) 2)
      (let [new-value (if (= (first mask) '\X)
                        (first value)
                        (first mask))]
@@ -87,7 +92,8 @@
   these are all the instructions between two masks in the input file (problem 1)"
   [mask mem-block]
   (reduce (fn [result mem]
-            (assoc result (keyword (str (first mem))) (apply-mask1 mask (second mem))))
+            (let [new-value (apply-mask1 mask (second mem))]
+              (assoc result (keyword (str (first mem))) new-value)))
           {}
           mem-block))
 
@@ -108,9 +114,12 @@
           apply-all-masks1))
 
 ; ---------------------------------------
+; problem 2
+
+; ---------------------------------------
 ; results
 
-(def day14-1 (apply + (map #(Long/parseLong (second %) 2) final-mem-values1)))
+(def day14-1 (apply + (map second final-mem-values1)))
 
 (defn -main
   []
