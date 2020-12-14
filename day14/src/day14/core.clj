@@ -146,6 +146,22 @@
   [values]
   (map #(keyword (str (Long/parseLong % 2))) (flatten values)))
 
+(defn apply-mask-mem-block2
+  "Applies a mask to a block of memory instructions,
+  these are all the instructions between two masks in the input file (problem 2)"
+  [mask mem-block]
+  (reduce (fn [final-result mem]
+            (let [floating-address-value (apply-mask2 mask (first mem))
+                  floating-addresses-values (create-all-values floating-address-value)
+                  all-addresses (create-all-addresses floating-addresses-values)
+                  updated-addresses-values (reduce (fn [result address]
+                                                     (assoc result address (second mem)))
+                                                   {}
+                                                   all-addresses)]
+              (into final-result updated-addresses-values)))
+          {}
+          mem-block))
+
 ; ---------------------------------------
 ; results
 
