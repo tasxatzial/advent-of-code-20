@@ -34,25 +34,11 @@
   [line]
   (= '\a (second line)))
 
-(defn apply-mask
-  "Applies a mask to a given value."
-  ([mask value] (apply-mask mask value []))
-  ([mask value result]
-   (if (empty? mask)
-     (apply str result)
-     (let [new-value (if (= (first mask) '\X)
-                   (first value)
-                   (first mask))]
-       (apply-mask (rest mask) (rest value) (conj result new-value))))))
-
 (def partitioned-input (partition-by mask? parsed-input))
-
-; ---------------------------------------
-; problem 1
 
 (defn process-mem-block
   "Creates a map of memory addresses to value from a block of memory instructions,
-  these are all the instructions between two masks in the input file."
+  this is a list of strings with all the instructions between two masks in the input file."
   [block]
   (reduce (fn [result mem-string]
             (conj result (parse-mem mem-string)))
@@ -68,7 +54,8 @@
           []
           partitioned-input))
 
-; a vector of maps, each map has the instructions of the corresponding mask from the above masks
+; a vector of maps, each map has the memory instructions for the corresponding mask
+; from the above masks
 (def mems
   (reduce (fn [result line]
             (if (mask? (first line))
@@ -81,18 +68,50 @@
 (def docking-instructions
   (map #(vector %1 %2) masks mems))
 
-(defn apply-mask-mem-block
+; ---------------------------------------
+; problem 1
+
+(defn apply-mask1
+  "Applies a mask to a given value (problem 1)"
+  ([mask value] (apply-mask1 mask value []))
+  ([mask value result]
+   (if (empty? mask)
+     (apply str result)
+     (let [new-value (if (= (first mask) '\X)
+                       (first value)
+                       (first mask))]
+       (apply-mask1 (rest mask) (rest value) (conj result new-value))))))
+
+(defn apply-mask-mem-block1
   "Applies a mask to a block of memory instructions,
-  these are all the instructions between two masks in the input file"
+  these are all the instructions between two masks in the input file (problem 1)"
   [mask mem-block]
   (reduce (fn [result mem]
-            (assoc result (keyword (str (first mem))) (apply-mask mask (second mem))))
+            (assoc result (keyword (str (first mem))) (apply-mask1 mask (second mem))))
           {}
           mem-block))
+
+; apply all masks in the final docking instructions (problem 1)
+(def apply-all-masks1
+  (reduce (fn [result block]
+            (let [mask (first block)
+                  mem-block (second block)]
+              (conj result (apply-mask-mem-block1 mask mem-block))))
+          []
+          docking-instructions))
+
+; collect all memory address/values after the instructions have been applied (problem 1)
+(def final-mem-values1
+  (reduce (fn [result block]
+            (into result block))
+          {}
+          apply-all-masks1))
 
 ; ---------------------------------------
 ; results
 
+(def day14-1 (apply + (map #(Long/parseLong (second %) 2) final-mem-values1)))
+
 (defn -main
   []
-  (println parsed-input))
+  (println day14-1))
