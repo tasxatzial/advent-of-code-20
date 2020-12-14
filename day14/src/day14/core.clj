@@ -29,13 +29,10 @@
         padding (apply str (take (- 36 (count binary-value)) (repeat "0")))]
     [(first integer-line) (str padding binary-value)]))
 
-(defn parse-line
-  "Parses a line from the input file and returns either a mask string
-  or a two element vector that corresponds to a mem instruction."
+(defn mask?
+  "Returns true if the line is a mask."
   [line]
-  (if (= '\a (second line))
-    (parse-mask line)
-    (parse-mem line)))
+  (= '\a (second line)))
 
 (defn apply-mask
   "Applies a mask to a given value."
@@ -43,9 +40,10 @@
   ([mask value result]
    (if (empty? mask)
      (apply str result)
-     (cond
-       (= (first mask) '\X) (apply-mask (rest mask) (rest value) (conj result (first value)))
-       :else (apply-mask (rest mask) (rest value) (conj result (first mask)))))))
+     (let [new-value (if (= (first mask) '\X)
+                   (first value)
+                   (first mask))]
+       (apply-mask (rest mask) (rest value) (conj result new-value))))))
 
 ; ---------------------------------------
 ; problem 1
