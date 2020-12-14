@@ -73,6 +73,24 @@
 (def docking-instructions
   (map #(vector %1 %2) masks mems))
 
+; apply all masks in the final docking instructions (problem 1)
+(defn apply-all-masks
+  [mask-func]
+  (reduce (fn [result block]
+            (let [mask (first block)
+                  mem-block (second block)]
+              (conj result (mask-func mask mem-block))))
+          []
+          docking-instructions))
+
+; collect all memory address/values after the instructions have been applied (problem 1)
+(defn final-mem-values
+  [updated-mem-blocks]
+  (reduce (fn [result block]
+            (into result block))
+          {}
+          updated-mem-blocks))
+
 ; ---------------------------------------
 ; problem 1
 
@@ -97,22 +115,6 @@
           {}
           mem-block))
 
-; apply all masks in the final docking instructions (problem 1)
-(def apply-all-masks1
-  (reduce (fn [result block]
-            (let [mask (first block)
-                  mem-block (second block)]
-              (conj result (apply-mask-mem-block1 mask mem-block))))
-          []
-          docking-instructions))
-
-; collect all memory address/values after the instructions have been applied (problem 1)
-(def final-mem-values1
-  (reduce (fn [result block]
-            (into result block))
-          {}
-          apply-all-masks1))
-
 ; ---------------------------------------
 ; problem 2
 
@@ -129,7 +131,7 @@
        (apply-mask2 (rest mask) (rest value) (conj result new-value))))))
 
 (defn create-all-values
-  "Returns all possible addresses given a value with floating bits."
+  "Returns all possible values given a value with floating bits."
   ([value] (create-all-values value [] []))
   ([value address result]
    (if (empty? value)
@@ -165,8 +167,11 @@
 ; ---------------------------------------
 ; results
 
-(def day14-1 (apply + (map second final-mem-values1)))
+(def day14-1 (apply + (map second (final-mem-values (apply-all-masks apply-mask-mem-block1)))))
+
+(def day14-2 (apply + (map second (final-mem-values (apply-all-masks apply-mask-mem-block2)))))
 
 (defn -main
   []
-  (println day14-1))
+  (println day14-1)                                         ;7997531787333
+  (println day14-2))                                        ;3564822193820
