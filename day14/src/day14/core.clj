@@ -77,7 +77,7 @@
 ; problem 1
 
 (defn apply-mask1
-  "Applies a mask to a given value (problem 1) and returns the new value."
+  "Applies a mask to a given value and returns the new value (problem 1)"
   ([mask value] (apply-mask1 mask (to-binary value) []))
   ([mask value result]
    (if (empty? mask)
@@ -115,6 +115,18 @@
 
 ; ---------------------------------------
 ; problem 2
+
+(defn apply-mask2
+  "Applies a mask to a given value and returns the new value (problem 2)"
+  ([mask value] (apply-mask2 mask (to-binary value) []))
+  ([mask value result]
+   (if (empty? mask)
+     (apply str result)
+     (let [new-value (cond
+                       (= (first mask) '\0) (first value)
+                       (= (first mask) '\1) '\1
+                       :else '\X)]
+       (apply-mask2 (rest mask) (rest value) (conj result new-value))))))
 
 ; ---------------------------------------
 ; results
