@@ -1,12 +1,9 @@
 (ns day15.core
   (:gen-class))
 
-; ---------------------------------------
-; problem 1
-
 (defn init-turns
-  "Initializes a map of numbers (key), each one has value that is a list
-  of the turns this number has appeared."
+  "Initializes a map of numbers (keys), each one is mapped to a list
+  of the positions of this number in the input."
   ([input] (init-turns input {} 0))
   ([input turns-map turn]
    (if (empty? input)
@@ -19,33 +16,40 @@
 
 (def input '(8 0 17 4 1 12))
 (def starting-turn (count input))
-(def starting-num 12)
+(def starting-num (last input))
 (def starting-turns-map (init-turns input))
 
-(defn play-game1
-  "Returns 2020th spoken number (problem 1)"
-  ([] (play-game1 starting-turn starting-num starting-turns-map))
-  ([turn num turns-map]
-   (if (= turn 2020)
+(defn play-game
+  "Returns nth spoken number"
+  ([nth] (play-game nth starting-turn starting-num starting-turns-map))
+  ([nth turn num turns-map]
+   (if (= turn nth)
      num
      (let [key (keyword (str num))
            turns (key turns-map)]
        (if (= 1 (count turns))
          (let [turns-0 (:0 turns-map)
-               new-turns-0 (conj turns-0 turn)
-               new-map (assoc turns-map :0 new-turns-0)]
-           (play-game1 (inc turn) 0 new-map))
+               new-turns-0 (if (= 1 (count turns-0))  ;keep only the first two elements
+                             (conj turns-0 turn)
+                             (conj (butlast turns-0) turn))
+               new-turn-map (assoc turns-map :0 new-turns-0)]
+           (recur nth (inc turn) 0 new-turn-map))
          (let [diff (- (first turns) (second turns))
-               new-key (keyword (str diff))
-               new-key-turns (conj (new-key turns-map) turn)
-               new-map (assoc turns-map new-key new-key-turns)]
-           (play-game1 (inc turn) diff new-map)))))))
+               key (keyword (str diff))
+               new-key-turns (let [key-turns (key turns-map)]  ;keep only the first two elements
+                               (if (= 1 (count key-turns))
+                                 (conj key-turns turn)
+                                 (conj (butlast key-turns) turn)))
+               new-turn-map (assoc turns-map key new-key-turns)]
+           (recur nth (inc turn) diff new-turn-map)))))))
 
 ; ---------------------------------------
 ; results
 
-(def day15-1 (play-game1))
+(def day15-1 (play-game 2020))
+(def day15-2 (play-game 30000000))
 
 (defn -main
   []
-  (println day15-1))
+  (println day15-1)                                         ;981
+  (println day15-2))                                        ;164878
