@@ -42,7 +42,7 @@
 ; problem 1
 
 (defn value-valid?
-  "Returns true if a value is valid (problem 1)"
+  "Returns true if a ticket value is valid."
   [value rules]
   (if (empty? rules)
     false
@@ -53,6 +53,16 @@
       (if (or (contained range1) (contained range2))
         true
         (recur value (rest rules))))))
+
+(defn ticket-error-rate
+  "Returns the scanning error rate for a specific ticket."
+  [ticket]
+  (reduce (fn [result value]
+            (if (value-valid? value parsed-ticket-rules)
+              result
+              (+ result value)))
+          0
+          ticket))
 
 (defn -main
   []
