@@ -35,8 +35,13 @@
 
 ; a list of ticket, each ticket is a list of values
 (def nearby-tickets
-  (let [ticket-values (map #(clojure.string/split % #",") (rest (clojure.string/split input-nearby-tickets #"\n")))]
-    (map #(map str->int %) ticket-values)))
+  (let [ticket-values (rest (clojure.string/split input-nearby-tickets #"\n")) ]
+    (map #(map str->int %) (map #(clojure.string/split % #",") ticket-values))))
+
+;a list of values for your ticket
+(def your-ticket
+  (let [ticket-values (second (clojure.string/split input-your-ticket #"\n"))]
+    (map str->int (clojure.string/split ticket-values #","))))
 
 ; ---------------------------------------
 ; problem 1
@@ -63,6 +68,12 @@
               (+ result value)))
           0
           ticket))
+
+; ---------------------------------------
+; problem 2
+
+(def valid-nearby-tickets
+  (filter #(= 0 (ticket-error-rate %)) nearby-tickets))
 
 ; ---------------------------------------
 ; results
