@@ -49,8 +49,8 @@
     (let [rule (first rules)
           range1 (first rule)
           range2 (second rule)
-          contained #(and (< value (second %)) (> value (first %)))]
-      (if (or (contained range1) (contained range2))
+          contained? #(and (<= value (second %)) (>= value (first %)))]
+      (if (or (contained? range1) (contained? range2))
         true
         (recur value (rest rules))))))
 
@@ -64,6 +64,11 @@
           0
           ticket))
 
+; ---------------------------------------
+; results
+
+(def day16-1 (apply + (map ticket-error-rate parsed-nearby-tickets)))
+
 (defn -main
   []
-  (println parsed-ticket-rules))
+  (println day16-1))
