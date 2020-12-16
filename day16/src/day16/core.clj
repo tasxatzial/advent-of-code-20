@@ -43,6 +43,11 @@
   (let [ticket-values (second (clojure.string/split input-your-ticket #"\n"))]
     (map str->int (clojure.string/split ticket-values #","))))
 
+(defn contained?
+  "Returns true if value is between (first range) and (second range) inclusive."
+  [value range]
+  (and (<= value (second range)) (>= value (first range))))
+
 ; ---------------------------------------
 ; problem 1
 
@@ -53,9 +58,8 @@
     false
     (let [rule (first rules)
           range1 (first rule)
-          range2 (second rule)
-          contained? #(and (<= value (second %)) (>= value (first %)))]
-      (if (or (contained? range1) (contained? range2))
+          range2 (second rule)]
+      (if (or (contained? value range1) (contained? value range2))
         true
         (recur value (rest rules))))))
 
@@ -75,6 +79,34 @@
 (def valid-nearby-tickets
   (filter #(= 0 (ticket-error-rate %)) nearby-tickets))
 
+(defn satisfied-rules
+  "Returns the indexes of the satisfied rules for the specified value."
+  ([rules value] (satisfied-rules rules value 0 []))
+  ([rules value index result]
+   (if (empty? rules)
+     result
+     (let [[range1 range2] (first rules)]
+       (if (or (contained? value range1) (contained? value range2))
+         (recur (rest rules) value (inc index) (conj result index))
+         (recur (rest rules) value (inc index) result))))))
+
+(defn ticket-satisfied-rules
+  "Returns a vector, each element is a vector of all the satisfied rules for
+   the value of the ticket in the corresponding index."
+  [ticket]
+  (reduce (fn [result value]
+            (conj result (satisfied-rules ticket-rules value)))
+          []
+          ticket))
+
+; a vector of vectors. Each vector corresponds the result of
+; ticket-satisfied-rules() for the nearby-ticket in the corresponding index.
+(def tickets-satisfied-rules
+  (reduce (fn [result ticket]
+            (conj result (ticket-satisfied-rules ticket)))
+          []
+          nearby-tickets))
+
 ; ---------------------------------------
 ; results
 
@@ -82,4 +114,4 @@
 
 (defn -main
   []
-  (println day16-1))
+  (println tickets-satisfied-rules))
