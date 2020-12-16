@@ -92,20 +92,39 @@
 
 (defn ticket-satisfied-rules
   "Returns a vector, each element is a vector of all the satisfied rules for
-   the value of the ticket in the corresponding index."
+   the ticket value at the corresponding index."
   [ticket]
   (reduce (fn [result value]
             (conj result (satisfied-rules ticket-rules value)))
           []
           ticket))
 
-; a vector of vectors. Each vector corresponds the result of
-; ticket-satisfied-rules() for the nearby-ticket in the corresponding index.
-(def tickets-satisfied-rules
+; a vector of vectors. Each vector corresponds to the result of
+; ticket-satisfied-rules() for the nearby-ticket at the corresponding index.
+(def all-ticket-satisfied-rules
   (reduce (fn [result ticket]
             (conj result (ticket-satisfied-rules ticket)))
           []
-          nearby-tickets))
+          valid-nearby-tickets))
+
+; how many rules we have
+(def rules-count (count ticket-rules))
+
+(defn nth-rule-valid-tickets
+  "Returns a list. Each element is a vector of the satisfied rules
+  for the nth value of each ticket."
+  [n]
+  (map #(get % n) all-ticket-satisfied-rules))
+
+(defn rules-valid-tickets
+  "Returns a vector that is the result of applying nth-rule-valid-tickets()
+  to all-ticket-satisfied-rules."
+  ([] (rules-valid-tickets 0 []))
+  ([index result]
+   (if (= index rules-count)
+     result
+     (let [field-valid-tickets (nth-rule-valid-tickets index)]
+       (rules-valid-tickets (inc index) (conj result field-valid-tickets))))))
 
 ; ---------------------------------------
 ; results
@@ -114,4 +133,4 @@
 
 (defn -main
   []
-  (println tickets-satisfied-rules))
+  (println (rules-valid-tickets)))
