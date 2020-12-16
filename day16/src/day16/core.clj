@@ -38,6 +38,22 @@
   (let [ticket-values (map #(clojure.string/split % #",") (rest (clojure.string/split nearby-tickets #"\n")))]
     (map #(map str->int %) ticket-values)))
 
+; ---------------------------------------
+; problem 1
+
+(defn value-valid?
+  "Returns true if a value is valid (problem 1)"
+  [value rules]
+  (if (empty? rules)
+    false
+    (let [rule (first rules)
+          range1 (first rule)
+          range2 (second rule)
+          contained #(and (< value (second %)) (> value (first %)))]
+      (if (or (contained range1) (contained range2))
+        true
+        (recur value (rest rules))))))
+
 (defn -main
   []
   (println parsed-ticket-rules))
