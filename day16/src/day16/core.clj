@@ -177,11 +177,25 @@
 
 (def rules-indexes (compute-rules-index init-all-values-satisfied-rules))
 
+(defn compute-solution2
+  "Computes the final solution to problem 2."
+  ([] (compute-solution2 0 1))
+  ([index result]
+   (if (= rules-count index)
+     result
+     (let [index-value (get rules-indexes index)]
+       (if (and (<= index-value 5) (>= index-value 0))
+         (recur (inc index) (* result (nth your-ticket index)))
+         (recur (inc index) result))))))
+
 ; ---------------------------------------
 ; results
 
 (def day16-1 (apply + (map ticket-error-rate nearby-tickets)))
 
+(def day16-2 (compute-solution2))
+
 (defn -main
   []
-  (println day16-1))
+  (println day16-1)                                         ; 20231
+  (println day16-2))                                        ; 1940065747861
