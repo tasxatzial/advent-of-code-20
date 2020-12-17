@@ -1,5 +1,6 @@
 (ns day16.core
-  (:gen-class))
+  (:gen-class)
+  (:use clojure.set))
 
 ; ---------------------------------------
 ; common
@@ -76,8 +77,17 @@
 ; ---------------------------------------
 ; problem 2
 
+(defn ticket-valid?
+  "Returns true if a ticket is valid, false otherwise."
+  [ticket]
+  (if (empty? ticket)
+    true
+    (if (value-valid? (first ticket) ticket-rules)
+      (recur (rest ticket))
+      false)))
+
 (def valid-nearby-tickets
-  (filter #(= 0 (ticket-error-rate %)) nearby-tickets))
+  (filter ticket-valid? nearby-tickets))
 
 (defn satisfied-rules
   "Returns the indexes of the satisfied rules for the specified value."
@@ -110,21 +120,11 @@
 ; how many rules we have
 (def rules-count (count ticket-rules))
 
-(defn nth-rule-valid-tickets
+(defn nth-value-satisfied-rules
   "Returns a list. Each element is a vector of the satisfied rules
   for the nth value of each ticket."
   [n]
   (map #(get % n) all-ticket-satisfied-rules))
-
-(defn rules-valid-tickets
-  "Returns a vector that is the result of applying nth-rule-valid-tickets()
-  to all-ticket-satisfied-rules."
-  ([] (rules-valid-tickets 0 []))
-  ([index result]
-   (if (= index rules-count)
-     result
-     (let [field-valid-tickets (nth-rule-valid-tickets index)]
-       (rules-valid-tickets (inc index) (conj result field-valid-tickets))))))
 
 ; ---------------------------------------
 ; results
@@ -133,4 +133,4 @@
 
 (defn -main
   []
-  (println (rules-valid-tickets)))
+  (println day16-1))
