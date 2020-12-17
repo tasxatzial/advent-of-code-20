@@ -161,6 +161,22 @@
 (def init-all-values-satisfied-rules
   (map #(process-all-value-satisfied-rules %1 %2) values-satisfied-rules values-all-satisfied-rules))
 
+(defn compute-rules-index
+  "Returns a vector that describes the permutation of the rules as they appear in the
+  input file."
+  ([rules] (compute-rules-index rules (apply vector (take rules-count (repeat -1)))))
+  ([rules result]
+   (let [one-element (some #(and (= 1 (count %)) %) rules)]
+     (if one-element
+       (let [index (count (take-while #(not= 1 (count %)) rules))
+             new-rules (map #(difference % one-element) rules)
+             new-result (assoc result index (first one-element))]
+         (compute-rules-index new-rules new-result)
+         )
+       result))))
+
+(def rules-indexes (compute-rules-index init-all-values-satisfied-rules))
+
 ; ---------------------------------------
 ; results
 
