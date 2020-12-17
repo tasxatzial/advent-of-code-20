@@ -138,6 +138,29 @@
 
 (def values-satisfied-rules (all-values-satisfied-rules))
 
+(def values-all-satisfied-rules
+  "Returns a list of sets. Each set corresponds to the nth values of each ticket
+  and has the rules that are satisfied by at least one of those values."
+  (reduce (fn [result rules]
+            (let [value-satisfied-rules (set (apply concat (map set rules)))]
+              (conj result value-satisfied-rules)))
+          []
+          values-satisfied-rules))
+
+(defn process-all-value-satisfied-rules
+  "Removes from all-rules every rule that does not appear in every element of rules."
+  [rules all-rules]
+  (let [non-satisfied (reduce (fn [result satisfied-rules]
+                                (into result (difference all-rules (set satisfied-rules))))
+                              #{}
+                              rules)]
+    (difference all-rules non-satisfied)))
+
+; remove from the i-th element of values-all-satisfied-rules the rules that
+; are not satisfied at the same time by every i-th value of the tickets.
+(def init-all-values-satisfied-rules
+  (map #(process-all-value-satisfied-rules %1 %2) values-satisfied-rules values-all-satisfied-rules))
+
 ; ---------------------------------------
 ; results
 
