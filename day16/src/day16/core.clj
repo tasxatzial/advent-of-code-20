@@ -126,6 +126,18 @@
   [n]
   (map #(get % n) all-ticket-satisfied-rules))
 
+(defn all-values-satisfied-rules
+  "Returns a vector that is the result of applying nth-value-satisfied-rules()
+  to all-ticket-satisfied-rules."
+  ([] (all-values-satisfied-rules 0 []))
+  ([index result]
+   (if (= index rules-count)
+     result
+     (let [field-valid-tickets (nth-value-satisfied-rules index)]
+       (all-values-satisfied-rules (inc index) (conj result field-valid-tickets))))))
+
+(def values-satisfied-rules (all-values-satisfied-rules))
+
 ; ---------------------------------------
 ; results
 
