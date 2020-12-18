@@ -107,9 +107,20 @@
 
 (def init-points (gen-init-points))
 
+; expand the initial points so that their neighbors are also included
+(def all-init-points
+  (reduce (fn [points [key state :as point]]
+            (let [coordinates (gen-coordinates key)
+                  neighbors-keys (generate-neighbors-keys coordinates)]
+              (if (= state \#)
+                (add-neighbors-keys points neighbors-keys)
+                points)))
+          init-points
+          init-points))
+
 ; ---------------------------------------
 ; results
 
 (defn -main
   []
-  (println init-points))
+  (println (count all-init-points)))
