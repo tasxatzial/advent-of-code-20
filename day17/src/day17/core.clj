@@ -59,7 +59,7 @@
   [all-points neighbors-keys]
   (reduce (fn [result key]
             (if (contains? all-points key)
-              all-points
+              result
               (conj result [key \.])))
           all-points
           neighbors-keys))
@@ -99,15 +99,17 @@
    (if (= index joined-input-count)
      all-points
      (let [point-state (get joined-input index)
-           y (Math/round (Math/floor (/ index rows)))
+           y (Math/round (Math/floor (/ index columns)))
            x (mod index columns)
            point-key (gen-key x y 0)
            new-all-points (conj all-points [point-key point-state])]
        (recur new-all-points (inc index))))))
+
+(def init-points (gen-init-points))
 
 ; ---------------------------------------
 ; results
 
 (defn -main
   []
-  (println (gen-init-points)))
+  (println init-points))
