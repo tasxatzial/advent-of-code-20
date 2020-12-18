@@ -17,7 +17,6 @@
   (clojure.string/split s #"\n"))
 
 (def input (parse (slurp input-file)))
-(def rows (count input))
 (def columns (count (first input)))
 
 (defn gen-key
@@ -119,8 +118,23 @@
           init-points))
 
 ; ---------------------------------------
+; problem 1
+
+; simulate 6 rounds
+(defn start-simulation
+  ([] (start-simulation all-init-points 0))
+  ([all-points iteration]
+   (if (= 6 iteration)
+     all-points
+     (let [next-state (reduce (fn [result point]
+                                (advance-state result point))
+                              all-points
+                              all-points)]
+       (recur next-state (inc iteration))))))
+
+; ---------------------------------------
 ; results
 
 (defn -main
   []
-  (println (count all-init-points)))
+  (println (start-simulation)))
