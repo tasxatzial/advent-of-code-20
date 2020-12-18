@@ -17,6 +17,8 @@
   (clojure.string/split s #"\n"))
 
 (def input (parse (slurp input-file)))
+(def rows (count input))
+(def columns (count (first input)))
 
 (defn gen-key
   "Generates a keyword from given integers x, y, z."
@@ -87,9 +89,25 @@
       \# (add-neighbors-keys new-all-points neighbors-keys)
       \. new-all-points)))
 
+(def joined-input (apply str input))
+(def joined-input-count (count joined-input))
+
+(defn gen-init-points
+  "Generate the initial state from the given input."
+  ([] (gen-init-points {} 0))
+  ([all-points index]
+   (if (= index joined-input-count)
+     all-points
+     (let [point-state (get joined-input index)
+           y (Math/round (Math/floor (/ index rows)))
+           x (mod index columns)
+           point-key (gen-key x y 0)
+           new-all-points (conj all-points [point-key point-state])]
+       (recur new-all-points (inc index))))))
+
 ; ---------------------------------------
 ; results
 
 (defn -main
   []
-  (println input))
+  (println (gen-init-points)))
