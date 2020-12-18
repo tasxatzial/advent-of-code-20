@@ -26,7 +26,7 @@
 (defn gen-coordinates
   "Generates the integer x,y,z coordinates from the specified keyword."
   [keyword]
-  (map str->int (rest (clojure.string/split (str keyword) #".|-"))))
+  (map str->int (rest (clojure.string/split (str keyword) #"[.|:]"))))
 
 (defn generate-neighbor-diffs
   "Generate a list of all difference vectors between
@@ -47,7 +47,7 @@
 
 (defn generate-neighbors-keys
   "Generate all neighbors keys of point [x y z]"
-  [x y z]
+  [[x y z]]
   (let [neighbors (map #(list (+ x (first %)) (+ y (second %)) (+ z (last %))) neighbor-diffs)]
     (map #(apply gen-key %) neighbors)))
 
@@ -58,9 +58,34 @@
   (reduce (fn [result key]
             (if (contains? all-points key)
               all-points
-              (conj result [key '\.])))
+              (conj result [key \.])))
           all-points
           neighbors-keys))
+
+(defn next-state
+  "Returns the new state based on the current state and the number
+  of active neighbors."
+  [state count-active]
+  (case state
+    \# (if (or (= count-active 2) (= count-active 3))
+          \#
+          \.)
+    \. (if (= 3 count-active)
+          \#
+          \.)))
+
+(defn advance-state
+  "Computes the new state of point [key state] and updates the map
+  of all-points."
+  [all-points [key state]]
+  (let [neighbors-keys (generate-neighbors-keys (gen-coordinates key))
+        neighbors-state (map #(% all-points) neighbors-keys)
+        count-active (count (filter #(= % \#) neighbors-state))
+        new-state (next-state state count-active)
+        new-all-points (assoc all-points key new-state)]
+    (case new-state
+      \# (add-neighbors-keys new-all-points neighbors-keys)
+      \. new-all-points)))
 
 ; ---------------------------------------
 ; results
