@@ -28,42 +28,39 @@
   [keyword]
   (map str->int (rest (clojure.string/split (str keyword) #".|-"))))
 
-(defn enable-neighbors
-  "Inserts into cube (map of coordinates to either . or #) all non-existing
-  neighbors of coordinate [x,y,z] with a default value of ."
-  [cube [x y z]]
-  (let [all-keys [(gen-key x (inc y) z)
-        (gen-key (inc x) y z)
-        (gen-key (inc x) (inc y) z)
-        (gen-key (dec x) y z)
-        (gen-key (dec x) (dec y) z)
-        (gen-key x (dec y) z)
-        (gen-key (dec x) (inc y) z)
-        (gen-key (inc x) (dec y) z)
-        (gen-key x (inc y) (inc z))
-        (gen-key (inc x) y (inc z))
-        (gen-key (inc x) (inc y) (inc z))
-        (gen-key (dec x) y (inc z))
-        (gen-key (dec x) (dec y) (inc z))
-        (gen-key x (dec y) (inc z))
-        (gen-key (dec x) (inc y) (inc z))
-        (gen-key (inc x) (dec y) (inc z))
-        (gen-key x (inc y) (dec z))
-        (gen-key (inc x) y (dec z))
-        (gen-key (inc x) (inc y) (dec z))
-        (gen-key (dec x) y (dec z))
-        (gen-key (dec x) (dec y) (dec z))
-        (gen-key x (dec y) (dec z))
-        (gen-key (dec x) (inc y) (dec z))
-        (gen-key (inc x) (dec y) (dec z))
-        (gen-key x y (inc z))
-        (gen-key x y (dec z))]]
-    (reduce (fn [result key]
-              (if (contains? cube key)
-                cube
-                (conj result [key '\.])))
-            cube
-            all-keys)))
+(defn generate-neighbor-diffs
+  "Generate a list of all difference vectors between
+  point [0 0 0] and its 26 neighbors"
+  ([] (generate-neighbor-diffs '() -1 -1 -1))
+  ([result x y z]
+   (if (and (= x 0) (= y 0) (= z 0))
+     (recur result 0 0 1)
+     (if (= z 2)
+       (recur result x (inc y) -1)
+       (if (= y 2)
+         (recur result (inc x) -1 -1)
+         (if (= x 2)
+           result
+           (recur (conj result (list x y z)) x y (inc z))))))))
+
+(def neighbor-diffs (generate-neighbor-diffs))
+
+(defn generate-neighbors-keys
+  "Generate all neighbors keys of point [x y z]"
+  [x y z]
+  (let [neighbors (map #(list (+ x (first %)) (+ y (second %)) (+ z (last %))) neighbor-diffs)]
+    (map #(apply gen-key %) neighbors)))
+
+(defn add-neighbors-keys
+  "Adds neighbors-keys (default value of '.') to all-points.
+  Existing neighbors-keys are not added."
+  [all-points neighbors-keys]
+  (reduce (fn [result key]
+            (if (contains? all-points key)
+              all-points
+              (conj result [key '\.])))
+          all-points
+          neighbors-keys))
 
 ; ---------------------------------------
 ; results
