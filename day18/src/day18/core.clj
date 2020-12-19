@@ -62,6 +62,34 @@
            (calculate-expr1 new-expr new-result)))))))
 
 ; ---------------------------------------
+; problem 2
+
+(defn char-to-int
+  "Converts a character to integer."
+  [ch]
+  (Integer. (str ch)))
+
+(defn calculate-expr2-no-parens
+  "Evaluate an expression that does not have any parentheses (problem 2)"
+  [expr]
+  (->> expr
+       (filter #(not= \space %))
+       (partition-by #(= \* %))
+       (filter #(not= \* (first %)))
+       (reduce (fn [result list]
+                 (if (> (count list) 1)
+                   (conj result (->> list
+                                     (take-nth 2)
+                                     (map char-to-int)
+                                     (apply +)))
+                   (conj result (->> list
+                                     first
+                                     char-to-int))))
+               [])
+       (apply *)))
+
+
+; ---------------------------------------
 ; results
 
 (def day18-1
