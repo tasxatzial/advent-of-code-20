@@ -29,7 +29,7 @@
 ; problem 1
 
 (defn calculate-expr1
-  "Calculates an expression."
+  "Calculates an expression (problem 1)"
   ([expr] (calculate-expr1 expr [1 (eval *)]))
   ([expr result]
    (if (empty? expr)
@@ -88,13 +88,29 @@
                [])
        (apply *)))
 
+(defn calculate-expr2
+  "Calculates an expression (problem 2)"
+  [expr]
+  (let [before-parens (take-while #(not= \( %) expr)
+        before-parens-count (count before-parens)]
+    (if (= before-parens-count (count expr))
+      (calculate-expr2-no-parens expr)
+      (let [after-parens (drop before-parens-count expr)
+            subexpr (find-subexpr after-parens)
+            subexpr-value (list (calculate-expr2 subexpr))
+            first-part (take before-parens-count expr)
+            last-part (drop (+ before-parens-count (count subexpr) 2) expr)]
+        (recur (concat first-part subexpr-value last-part))))))
 
 ; ---------------------------------------
 ; results
 
 (def day18-1
   (apply + (map (comp first calculate-expr1) input)))
+(def day18-2
+  (apply + (map calculate-expr2 input)))
 
 (defn -main
   []
-  (println day18-1))                                        ;98621258158412
+  (println day18-1)                                         ;98621258158412
+  (println day18-2))                                        ;241216538527890
