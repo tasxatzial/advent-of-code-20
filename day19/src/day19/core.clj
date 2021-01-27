@@ -38,6 +38,11 @@
             {}
             init-rules)))
 
+(defn parse-messages
+  "Parses the messages from the input file into a list of strings."
+  [input]
+  (rest (drop-while #(not= "" %) input)))
+
 (defn -main
   []
-  (println (parse-rules input)))
+  (println (parse-messages input)))
