@@ -66,6 +66,18 @@
             (list [(update-pattern first) index]
                   [(update-pattern second) index])))))))
 
+(defn gen-zero-patterns
+  "Generates all patterns that contain only \"a\" or \"b\" using the pattern
+  for rule 0 is used as the initial pattern."
+  ([] (gen-zero-patterns [] (list [(first (get rules 0)) 0])))
+  ([patterns new-patterns]
+   (if (= patterns new-patterns)
+     new-patterns
+     (let [updated-patterns (apply concat (map expand-pattern new-patterns))]
+       (recur new-patterns updated-patterns)))))
+
+(def zero-msgs (gen-zero-patterns))
+
 (defn -main
   []
   )
