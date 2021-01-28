@@ -76,8 +76,18 @@
      (let [updated-patterns (apply concat (map expand-pattern new-patterns))]
        (recur new-patterns updated-patterns)))))
 
-(def zero-msgs (gen-zero-patterns))
+;collects all messages that match rule 0
+(defn zero-matches
+  []
+  (let [zero-msgs (gen-zero-patterns)]
+    (reduce (fn [result pattern]
+              (let [msg (apply str (first pattern))]
+                (if (contains? messages msg)
+                  (conj result msg)
+                  result)))
+            #{}
+            zero-msgs)))
 
 (defn -main
   []
-  )
+  (println (count (zero-matches))))
