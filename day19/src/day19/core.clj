@@ -11,17 +11,16 @@
   [s]
   (clojure.string/split s #"\n"))
 
-(def input (parse (slurp input-file)))
-
 (defn parse-rule-value
   "Parses a string of the form \"12 13 a\" into the appropriate structure.
-  For this example it returns (12 13 \"a\")"
+  For this example it returns [12 13 \"a\"]"
   [value]
   (let [split-rule (clojure.string/split value #" ")
         rule-values (filter #(boolean (seq %)) split-rule)]
-    (map #(try
+    (mapv #(try
             (Integer. ^String %)
-            (catch NumberFormatException e %))
+            (catch NumberFormatException e
+              (second (clojure.string/split % #"\""))))
          rule-values)))
 
 (defn parse-rules
@@ -31,7 +30,7 @@
   (let [init-rules (take-while #(not= "" %) input)]
     (reduce (fn [rules rules-string]
               (let [split-rule (clojure.string/split rules-string #":")
-                    rule-key (first split-rule)
+                    rule-key (Integer. ^String (first split-rule))
                     rule-values (clojure.string/split (second split-rule) #"\|")
                     parsed-rule-values (map parse-rule-value rule-values)]
                 (assoc rules rule-key parsed-rule-values)))
@@ -43,6 +42,30 @@
   [input]
   (rest (drop-while #(not= "" %) input)))
 
+(def input (parse (slurp input-file)))
+(def rules (parse-rules input))
+(def messages (set (parse-messages input)))
+
+; ---------------------------------------
+; problem 1
+
+(defn expand-pattern
+  "Expands a pattern using the rules (single pass). For example
+  pattern [A B] using rules A -> B | C, B -> D is expanded to
+  [B D] [C D] "
+  [[pattern index]]
+  (let [pattern-item (get pattern index)]
+    (if (not pattern-item)
+      (list [pattern index])
+      (if (or (= pattern-item "a") (= pattern-item "b"))
+        (list [pattern (inc index)])
+        (let [item-rules (get rules pattern-item)
+              update-pattern #(apply vector (flatten (assoc pattern index (% item-rules))))]
+          (if (= (count item-rules) 1)
+            (list [(update-pattern first) index])
+            (list [(update-pattern first) index]
+                  [(update-pattern second) index])))))))
+
 (defn -main
   []
-  (println (parse-messages input)))
+  )
