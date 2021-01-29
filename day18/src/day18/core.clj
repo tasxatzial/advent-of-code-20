@@ -13,6 +13,16 @@
 
 (def input (parse (slurp input-file)))
 
+(defn parse-expr
+  "Parses a string expression into the appropriate list structure."
+  [expr-string]
+  (let [no-spaces-expr (filter #(not= \space %) expr-string)]
+    (map #(cond
+            (or (= \+ %) (= \* %)) (eval (read-string (str %)))
+            (or (= \( %) (= \) %)) %
+            :else (Integer. (str %)))
+         no-spaces-expr)))
+
 (defn find-subexpr
   "Expr must start with (. Everything until the matching ) will be returned."
   ([expr] (find-subexpr (rest expr) [] 1))
