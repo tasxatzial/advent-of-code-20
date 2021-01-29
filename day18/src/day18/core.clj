@@ -23,6 +23,31 @@
             :else (Integer. (str %)))
          no-spaces-expr)))
 
+; ---------------------------------------
+; problem 1
+
+(defn calculate-expr1
+  "Calculates an expression according to problem 1 rules."
+  ([expr] (calculate-expr1 expr [* 1]))
+  ([expr [op result]]
+   (if (empty? expr)
+     result
+     (let [sym (first expr)]
+       (cond
+         (or (= + sym) (= * sym)) (recur (rest expr) [sym result])
+         (= \( sym) (let [[_ res1 expr1] (calculate-expr1 (rest expr) [* 1])]
+                      (recur (rest expr1) [op (op res1 result)]))
+         (= \) sym) [op result expr]
+         :else (recur (rest expr) [op (op result sym)]))))))
+
+; ---------------------------------------
+; problem 2
+
+(defn char-to-int
+  "Converts a character to integer."
+  [ch]
+  (Integer. (str ch)))
+
 (defn find-subexpr
   "Expr must start with (. Everything until the matching ) will be returned."
   ([expr] (find-subexpr (rest expr) [] 1))
@@ -34,50 +59,6 @@
          \( (recur (rest expr) (conj result \() (inc count))
          \) (recur (rest expr) (conj result \)) (dec count))
          (recur (rest expr) (conj result char) count))))))
-
-; ---------------------------------------
-; problem 1
-
-(defn calculate-expr1
-  "Calculates an expression (problem 1)"
-  ([expr] (calculate-expr1 expr [1 (eval *)]))
-  ([expr result]
-   (if (empty? expr)
-     result
-     (let [char (first expr)]
-       (case char
-         \( (let [subexpr (find-subexpr expr)
-                  subexpr-value (calculate-expr1 subexpr)
-                  op (second result)
-                  value1 (first subexpr-value)
-                  value2 (first result)
-                  new-result (vector (op value1 value2) op)
-                  new-expr (drop (+ 2 (count subexpr)) expr)]
-              (calculate-expr1 new-expr new-result))
-         \+ (let [new-expr (rest expr)
-                  value (first result)
-                  new-result (vector value (eval +))]
-              (calculate-expr1 new-expr new-result))
-         \* (let [new-expr (rest expr)
-                  res (first result)
-                  new-result (vector res (eval *))]
-              (calculate-expr1 new-expr new-result))
-         \space (let [new-expr (rest expr)]
-                  (calculate-expr1 new-expr result))
-         (let [new-expr (rest expr)
-               op (second result)
-               value1 (first result)
-               value2 (Integer. (str char))
-               new-result (vector (op value1 value2) \space)]
-           (calculate-expr1 new-expr new-result)))))))
-
-; ---------------------------------------
-; problem 2
-
-(defn char-to-int
-  "Converts a character to integer."
-  [ch]
-  (Integer. (str ch)))
 
 (defn calculate-expr2-no-parens
   "Evaluate an expression that does not have any parentheses (problem 2)"
@@ -116,7 +97,7 @@
 ; results
 
 (def day18-1
-  (apply + (map (comp first calculate-expr1) input)))
+  (apply + (map (comp calculate-expr1 parse-expr) input)))
 (def day18-2
   (apply + (map calculate-expr2 input)))
 
