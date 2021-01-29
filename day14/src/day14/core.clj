@@ -73,8 +73,8 @@
 (def docking-instructions
   (map #(vector %1 %2) masks mems))
 
-; apply all masks in the final docking instructions (problem 1)
 (defn apply-all-masks
+  "Applies all masks in the final docking instructions (problem 1)"
   [mask-func]
   (reduce (fn [result block]
             (let [mask (first block)
@@ -83,8 +83,8 @@
           []
           docking-instructions))
 
-; collect all memory address/values after the instructions have been applied (problem 1)
 (defn final-mem-values
+  "Collects all memory address/values after the instructions have been applied (problem 1)"
   [updated-mem-blocks]
   (reduce (fn [result block]
             (into result block))
@@ -167,11 +167,15 @@
 ; ---------------------------------------
 ; results
 
-(def day14-1 (apply + (map second (final-mem-values (apply-all-masks apply-mask-mem-block1)))))
+(defn day14-1
+  []
+  (apply + (map second (final-mem-values (apply-all-masks apply-mask-mem-block1)))))
 
-(def day14-2 (apply + (map second (final-mem-values (apply-all-masks apply-mask-mem-block2)))))
+(defn day14-2
+  []
+  (apply + (map second (final-mem-values (apply-all-masks apply-mask-mem-block2)))))
 
 (defn -main
   []
-  (println day14-1)                                         ;7997531787333
-  (println day14-2))                                        ;3564822193820
+  (println (day14-1))                                         ;7997531787333
+  (println (day14-2)))                                        ;3564822193820

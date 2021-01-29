@@ -83,11 +83,15 @@
 ; --------------------------
 ; results
 
-(def day08-1 (execute1))
+(defn day08-1
+  []
+  (execute1))
 
-(def day08-2 (execute2))
+(defn day08-2
+  []
+  (execute2))
 
 (defn -main
   []
-  (println day08-1)                                         ;[1818 false]
-  (println day08-2))                                        ;[631 true]
+  (println (day08-1))                                         ;[1818 false]
+  (println (day08-2)))                                        ;[631 true]

@@ -34,13 +34,16 @@
             []
             split-rules)))
 
-; a list of ticket, each ticket is a list of values
+; how many rules we have
+(def rules-count (count ticket-rules))
+
+; a list of tickets, each ticket is a list of values
 (def nearby-tickets
   (let [ticket-values (rest (clojure.string/split input-nearby-tickets #"\n")) ]
     (map #(map str->int %) (map #(clojure.string/split % #",") ticket-values))))
 
-;a list of values for your ticket
-(def your-ticket
+;a list of values for our ticket
+(def our-ticket
   (let [ticket-values (second (clojure.string/split input-your-ticket #"\n"))]
     (map str->int (clojure.string/split ticket-values #","))))
 
@@ -86,7 +89,9 @@
       (recur (rest ticket))
       false)))
 
-(def valid-nearby-tickets
+(defn valid-nearby-tickets
+  "Collects all valid nearby tickets."
+  []
   (filter ticket-valid? nearby-tickets))
 
 (defn satisfied-rules
@@ -109,22 +114,20 @@
           []
           ticket))
 
-; a vector of vectors. Each vector corresponds to the result of
-; ticket-satisfied-rules() for the nearby-ticket at the corresponding index.
-(def all-ticket-satisfied-rules
+(defn all-ticket-satisfied-rules
+  "Returns a vector of vectors. Each vector corresponds to the result of
+  ticket-satisfied-rules() for the nearby-ticket at the corresponding index."
+  []
   (reduce (fn [result ticket]
             (conj result (ticket-satisfied-rules ticket)))
           []
-          valid-nearby-tickets))
-
-; how many rules we have
-(def rules-count (count ticket-rules))
+          (valid-nearby-tickets)))
 
 (defn nth-value-satisfied-rules
   "Returns a list. Each element is a vector of the satisfied rules
   for the nth value of each ticket."
   [n]
-  (map #(get % n) all-ticket-satisfied-rules))
+  (map #(get % n) (all-ticket-satisfied-rules)))
 
 (defn all-values-satisfied-rules
   "Returns a vector that is the result of applying nth-value-satisfied-rules()
@@ -136,7 +139,7 @@
      (let [field-valid-tickets (nth-value-satisfied-rules index)]
        (all-values-satisfied-rules (inc index) (conj result field-valid-tickets))))))
 
-(def values-satisfied-rules (all-values-satisfied-rules))
+(def memoized-values-satisfied-rules (memoize all-values-satisfied-rules))
 
 (def values-all-satisfied-rules
   "Returns a list of sets. Each set corresponds to the nth values of each ticket
@@ -145,7 +148,7 @@
             (let [value-satisfied-rules (set (apply concat (map set rules)))]
               (conj result value-satisfied-rules)))
           []
-          values-satisfied-rules))
+          (memoized-values-satisfied-rules)))
 
 (defn process-all-value-satisfied-rules
   "Removes from all-rules every rule that does not appear in every element of rules."
@@ -156,14 +159,16 @@
                               rules)]
     (difference all-rules non-satisfied)))
 
-; remove from the i-th element of values-all-satisfied-rules the rules that
-; are not satisfied at the same time by every i-th value of the tickets.
-(def init-all-values-satisfied-rules
-  (map #(process-all-value-satisfied-rules %1 %2) values-satisfied-rules values-all-satisfied-rules))
+(defn init-all-values-satisfied-rules
+  "Removes from the i-th element of values-all-satisfied-rules the rules that
+  are not satisfied at the same time by every i-th value of the tickets."
+  []
+  (map #(process-all-value-satisfied-rules %1 %2) (memoized-values-satisfied-rules) values-all-satisfied-rules))
 
 (defn compute-rules-index
-  "Returns a vector that describes the permutation of the rules as they appear in the
-  input file."
+  "Returns a vector of the permutation of the rules from the input file based
+  on our ticket. For example if the first element is 17 then the first element in our
+  ticket corresponds to 17th line of the input file."
   ([rules] (compute-rules-index rules (apply vector (take rules-count (repeat -1)))))
   ([rules result]
    (let [one-element (some #(and (= 1 (count %)) %) rules)]
@@ -171,11 +176,10 @@
        (let [index (count (take-while #(not= 1 (count %)) rules))
              new-rules (map #(difference % one-element) rules)
              new-result (assoc result index (first one-element))]
-         (compute-rules-index new-rules new-result)
-         )
+         (recur new-rules new-result))
        result))))
 
-(def rules-indexes (compute-rules-index init-all-values-satisfied-rules))
+(def memoized-rules-indexes (memoize (comp compute-rules-index init-all-values-satisfied-rules)))
 
 (defn compute-solution2
   "Computes the final solution to problem 2."
@@ -183,19 +187,23 @@
   ([index result]
    (if (= rules-count index)
      result
-     (let [index-value (get rules-indexes index)]
+     (let [index-value (get (memoized-rules-indexes) index)]
        (if (and (<= index-value 5) (>= index-value 0))
-         (recur (inc index) (* result (nth your-ticket index)))
+         (recur (inc index) (* result (nth our-ticket index)))
          (recur (inc index) result))))))
 
 ; ---------------------------------------
 ; results
 
-(def day16-1 (apply + (map ticket-error-rate nearby-tickets)))
+(defn day16-1
+  []
+  (apply + (map ticket-error-rate nearby-tickets)))
 
-(def day16-2 (compute-solution2))
+(defn day16-2
+  []
+  (compute-solution2))
 
 (defn -main
   []
-  (println day16-1)                                         ; 20231
-  (println day16-2))                                        ; 1940065747861
+  (println (day16-1))                                         ; 20231
+  (println (day16-2)))                                        ; 1940065747861

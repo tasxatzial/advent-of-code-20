@@ -74,13 +74,13 @@
     pos))
 
 ; steer ship to the final position
-(def destination1 (reduce (fn [[pos direction] instruction]
+(defn destination1
+  []
+  (reduce (fn [[pos direction] instruction]
                       [(new-ship-pos1 direction pos instruction)
                        (new-ship-direction1 direction instruction)])
                           [ship-init-pos ship-init-direction]
                           instructions))
-
-(def day12-1 (compute-manhattan (:N (first destination1)) (:E (first destination1))))
 
 ; ---------------------------------------
 ; problem 2
@@ -132,19 +132,28 @@
     (assoc pos :E (first new-pos) :N (second new-pos))))
 
 ; steer ship and waypoint to their final positions
-(def destination2
+(defn destination2
+  []
   (reduce (fn [[ship-pos waypoint-pos] instruction]
             [(move-ship2 waypoint-pos ship-pos instruction)
              (move-waypoint2 waypoint-pos instruction)])
           [ship-init-pos {:N 1 :E 10}]
           instructions))
 
-(def day12-2 (compute-manhattan (:N (first destination2)) (:E (first destination2))))
-
 ; ---------------------------------------
 ; results
 
+(defn day12-1
+  []
+  (let [destination1 (destination1)]
+    (compute-manhattan (:N (first destination1)) (:E (first destination1)))))
+
+(defn day12-2
+  []
+  (let [destination2 (destination2)]
+    (compute-manhattan (:N (first destination2)) (:E (first destination2)))))
+
 (defn -main
   []
-  (println day12-1)                                         ;1838
-  (println day12-2))                                        ;89936
+  (println (day12-1))                                         ;1838
+  (println (day12-2)))                                        ;89936

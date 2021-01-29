@@ -107,7 +107,9 @@
              result (conj result [seat-state adjacents])]
          (recur result row-index (inc col-index)))))))
 
-(def seats1 (create-seats1))
+(defn seats1
+  []
+  (create-seats1))
 
 (defn advance-seat-rules1
   "Returns the seat in its new state (problem 1)"
@@ -137,7 +139,9 @@
              result (conj result [seat-state row-index col-index])]
          (recur result row-index (inc col-index)))))))
 
-(def seats2 (create-seats2))
+(defn seats2
+  []
+  (create-seats2))
 
 (defn get-seat-state
   "Returns the state of seat pos. Seat is a 2 element vector [row-index, col-index]."
@@ -175,11 +179,15 @@
 ; ---------------------------------------
 ; results
 
-(def day11-1 (count-occupied-seats (run-simulation seats1 advance-seat-rules1)))
+(defn day11-1
+  []
+  (count-occupied-seats (run-simulation (seats1) advance-seat-rules1)))
 
-(def day11-2 (count-occupied-seats (run-simulation seats2 advance-seat-rules2)))
+(defn day11-2
+  []
+  (count-occupied-seats (run-simulation (seats2) advance-seat-rules2)))
 
 (defn -main
   []
-  (println day11-1)                                         ;2299
-  (println day11-2))                                        ;2047
+  (println (day11-1))                                         ;2299
+  (println (day11-2)))                                        ;2047

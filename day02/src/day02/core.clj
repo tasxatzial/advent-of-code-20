@@ -72,13 +72,15 @@
 ; ---------------------------------------
 ; results
 
-(def day02-1
+(defn day02-1
+  []
   (count (filter true? (map isValid1? (parse (slurp input))))))
 
-(def day02-2
+(defn day02-2
+  []
   (count (filter true? (map isValid2? (parse (slurp input))))))
 
 (defn -main
   []
-  (println day02-1) ;469
-  (println day02-2)) ;267
+  (println (day02-1)) ;469
+  (println (day02-2))) ;267

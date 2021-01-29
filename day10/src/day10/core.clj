@@ -21,11 +21,14 @@
 ; ---------------------------------------
 ; problem 1
 
-; in order to find the joltage differences, we should first sort the joltages
-(def diffs
+(defn calculate-joltage-diffs
+  []
+  "Sorts the joltages and calculates the adjacent joltage differences."
   (let [sorted-col (sort parsed-input)
         shifted-col (conj (butlast sorted-col) 0)]
     (map #(- %1 %2) sorted-col shifted-col)))
+
+(def memoized-diffs (memoize calculate-joltage-diffs))
 
 ; ---------------------------------------
 ; problem 2
@@ -44,12 +47,12 @@
          (+ count-left count-right))
        (count-trees (dec num) 0)))))
 
-
-; Create a list of the number of elements in each block of ones in the joltage
-; differences list from problem 1 and subtract 1 from each element.
-; Only non-zero values are collected.
-(def ones-block-sizes
-  (let [partition-by-3 (partition-by #(= 3 %) diffs)]
+(defn ones-block-sizes
+  "Creates a list of the number of elements in each block of ones in the joltage
+  differences list from problem 1 and subtract 1 from each element.
+  Only non-zero values are collected."
+  []
+  (let [partition-by-3 (partition-by #(= 3 %) (memoized-diffs))]
     (reduce (fn [result sublist]
               (if (= (first sublist) 3)
                 result
@@ -62,16 +65,18 @@
 ; ---------------------------------------
 ; results
 
-(def day10-1
-  (let [count-1jolts (count (filter #(= 1 %) diffs))
-        count-3jolts (count (filter #(= 3 %) diffs))]
+(defn day10-1
+  []
+  (let [count-1jolts (count (filter #(= 1 %) (memoized-diffs)))
+        count-3jolts (count (filter #(= 3 %) (memoized-diffs)))]
     (* count-1jolts (inc count-3jolts))))    ;+1 because our device always has diff 3
 
 ; Efficiently process the list ones-block-sizes. For each number in that list
 ; we use the count-trees then each result is multiplied by the previous one. The final
 ; result is the total number of distinct ways we can arrange the adapters.
-(def day10-2
-  (let [partition&sort-ones-block-sizes (partition-by identity (sort ones-block-sizes))]
+(defn day10-2
+  []
+  (let [partition&sort-ones-block-sizes (partition-by identity (sort (ones-block-sizes)))]
     (reduce (fn [result ones-size-block]
               (let [ones-size-factor (count-trees (first ones-size-block))
                     ones-size-factors (take (count ones-size-block) (repeat ones-size-factor))]
@@ -81,5 +86,5 @@
 
 (defn -main
   []
-  (println day10-1)                                         ;2277
-  (println day10-2))                                        ;37024595836928
+  (println (day10-1))                                         ;2277
+  (println (day10-2)))                                        ;37024595836928

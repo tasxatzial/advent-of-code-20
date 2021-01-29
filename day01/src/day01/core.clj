@@ -82,13 +82,15 @@
 ; ---------------------------------------
 ; results
 
-(def day01-1
+(defn day01-1
+  []
   (sum2020-1 (sort (parse (slurp input)))))
 
-(def day01-2
+(defn day01-2
+  []
   (sum2020-2 (sort (parse (slurp input)))))
 
 (defn -main
   []
-  (println day01-1) ;[279 1741]
-  (println day01-2)) ;[257 494 1269]
+  (println (day01-1)) ;[279 1741]
+  (println (day01-2))) ;[257 494 1269]

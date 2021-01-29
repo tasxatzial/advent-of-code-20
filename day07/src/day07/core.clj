@@ -71,8 +71,6 @@
 ; remove the shiny gold bag rules from map of final rules
 (def rules-without-shinygold (dissoc parsed-rules :shinygold))
 
-(declare inner-bags-contain-shinygold?)
-
 (defn inner-bags-contain-shinygold?
   "Returns true if the value (inner bags) of a bag key can contain the
   shiny gold key."
@@ -90,7 +88,7 @@
 ; problem 2
 
 (defn count-bags-inside-shinygold
-  "Counts the number of bags the shiny gold bag contains."
+  "Counts the number of bags contained in the shiny gold bag."
   [inner-bags]
   (if (empty? inner-bags)
     0
@@ -102,16 +100,20 @@
 ; ---------------------------------------
 ; results
 
-(def day07-1 (reduce (fn [result [key val]]
+(defn day07-1
+  []
+  (reduce (fn [result [_ val]]
                        (if (inner-bags-contain-shinygold? val)
                          (inc result)
                          result))
                      0
                      rules-without-shinygold))
 
-(def day07-2 (count-bags-inside-shinygold (:shinygold parsed-rules)))
+(defn day07-2
+  []
+  (count-bags-inside-shinygold (:shinygold parsed-rules)))
 
 (defn -main
   []
-  (println day07-1)                                         ;185
-  (println day07-2))                                        ;89084
+  (println (day07-1))                                         ;185
+  (println (day07-2)))                                        ;89084

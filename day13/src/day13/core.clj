@@ -81,13 +81,18 @@
 ; ---------------------------------------
 ; results
 
-(def day13-1 (let [bus-wait-times (calculate-bus-wait-time)
-                   min-bus (find-earliest-bus bus-wait-times)]
-               (* (first min-bus) (second min-bus))))
+(defn day13-1
+  []
+  (let [bus-wait-times (calculate-bus-wait-time)
+        min-bus (find-earliest-bus bus-wait-times)]
+    (* (first min-bus) (second min-bus))))
 
-(def day13-2 (find-min-timestamp))
+;very slow, needs optimization
+(defn day13-2
+  []
+  (find-min-timestamp))
 
 (defn -main
   []
-  (println day13-1)                            ;174
-  (println day13-2))                           ;780601154795940
+  (println (day13-1))                            ;174
+  (println (day13-2)))                           ;780601154795940

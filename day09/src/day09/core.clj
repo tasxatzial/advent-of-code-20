@@ -94,7 +94,7 @@
 ; ---------------------------------------
 ; problem 2
 
-(def sol-1 (find-first))
+(declare memoized-day09-1)
 
 (defn find-smallest-largest
   "Finds a contiguous list of numbers in the input file such that the sum of
@@ -103,24 +103,29 @@
   ([prev-sum first-index second-index]
    (if (= first-index count-col)
      nil
-     (if (or (>= second-index count-col) (< sol-1 prev-sum))
+     (if (or (>= second-index count-col) (< (memoized-day09-1) prev-sum))
        (let [next-first-index (inc first-index)]
          (recur (nth parsed-input next-first-index) next-first-index (inc next-first-index)))
        (let [new-sum (+ prev-sum (nth parsed-input second-index))]
-         (if (= sol-1 new-sum)
+         (if (= (memoized-day09-1) new-sum)
            (concat (take (inc (- second-index first-index)) (drop first-index parsed-input)))
            (recur new-sum first-index (inc second-index))))))))
 
 ; ---------------------------------------
 ; results
 
-(def day09-1 sol-1)
+(defn day09-1
+  []
+  (find-first))
 
-(def day09-2
+(def memoized-day09-1 (memoize day09-1))
+
+(defn day09-2
+  []
   (let [sorted-sublist (sort (find-smallest-largest))]
     (+ (first sorted-sublist) (last sorted-sublist))))
 
 (defn -main
   []
-  (println day09-1)                                  ;393911906
-  (println day09-2))                                 ;59341885
+  (println (memoized-day09-1))                                  ;393911906
+  (println (day09-2)))                               ;59341885

@@ -40,7 +40,9 @@
   [code-string]
   (+ (find-col code-string) (* 8 (find-row code-string))))
 
-(def seat-ids (map find-seat-id (parse (slurp input-file))))
+(defn seat-ids
+  []
+  (map find-seat-id (parse (slurp input-file))))
 
 ; ---------------------------------------
 ; problem 2
@@ -57,13 +59,16 @@
 ; ---------------------------------------
 ; results
 
-(def day05-1
+(defn day05-1
+  [seat-ids]
   (apply max seat-ids))
 
-(def day05-2
+(defn day05-2
+  [seat-ids]
   (find-my-seat seat-ids))
 
 (defn -main
   []
-  (println day05-1)                                         ;806
-  (println day05-2))                                        ;562
+  (let [seat-ids (seat-ids)]
+    (println (day05-1 seat-ids))                                         ;806
+    (println (day05-2 seat-ids))))                                       ;562

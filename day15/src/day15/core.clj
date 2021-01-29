@@ -46,10 +46,16 @@
 ; ---------------------------------------
 ; results
 
-(def day15-1 (play-game 2020))
-(def day15-2 (play-game 30000000))
+(defn day15-1
+  []
+  (play-game 2020))
+
+;slow, needs optimization
+(defn day15-2
+  []
+  (play-game 30000000))
 
 (defn -main
   []
-  (println day15-1)                                         ;981
-  (println day15-2))                                        ;164878
+  (println (day15-1))                                         ;981
+  (println (day15-2)))                                        ;164878

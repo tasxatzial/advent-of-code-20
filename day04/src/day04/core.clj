@@ -135,15 +135,17 @@
 ; ---------------------------------------
 ; results
 
-(def day04-1
+(defn day04-1
+  []
   (count (filter true? (map isPassportValid1? passports))))
 
-(def day04-2
+(defn day04-2
+  []
   (count (filter true? (map #(and (isPassportValid1? %)
                                   (isPassportValid2? %))
                             passports))))
 
 (defn -main
   []
-  (println day04-1)                                         ;216
-  (println day04-2))                                        ;150
+  (println (day04-1))                                         ;216
+  (println (day04-2)))                                        ;150

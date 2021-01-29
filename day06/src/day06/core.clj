@@ -9,12 +9,12 @@
 (defn parse
   "Splits the input string by \n\n and then splits again by \n.
   Returns a list of vectors, each element of the vector represents
-  the answers of one user of the group."
+  the answers of a user of the group."
   [input]
   (map #(clojure.string/split % #"\n") (clojure.string/split input #"\n\n")))
 
-; Converts the strings from the parsed input into sets and returns
-; a new parsed input
+; Converts each string from the parsed input into a set of characters
+; this is now the new parsed input
 (def parsed-input
   (reduce (fn [result group-answers]
             (conj result (map set group-answers)))
@@ -62,13 +62,15 @@
 ; ---------------------------------------
 ; results
 
-(def day06-1
+(defn day06-1
+  []
   (apply + (map count-yes1 parsed-input)))
 
-(def day06-2
+(defn day06-2
+  []
   (apply + (map count-yes2 parsed-input)))
 
 (defn -main
   []
-  (println day06-1)                                         ;6430
-  (println day06-2))                                        ;3125
+  (println (day06-1))                                         ;6430
+  (println (day06-2)))                                        ;3125

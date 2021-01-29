@@ -49,10 +49,12 @@
 ; ---------------------------------------
 ; results
 
-(def day03-1
+(defn day03-1
+  []
   (first (count-trees1 (parse (slurp input-file)))))
 
-(def day03-2
+(defn day03-2
+  []
   (let [parsed-input (parse (slurp input-file))]
     [(first (count-trees2 parsed-input 1 1))
      (first (count-trees2 parsed-input 3 1))
@@ -62,5 +64,5 @@
 
 (defn -main
   []
-  (println day03-1)  ;276
-  (println day03-2)) ;[100 276 85 90 37]
+  (println (day03-1))  ;276
+  (println (day03-2))) ;[100 276 85 90 37]
