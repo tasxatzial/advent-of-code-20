@@ -24,6 +24,16 @@
 (def player1-cards (gen-cards (first input)))
 (def player2-cards (gen-cards (second input)))
 
+(defn calculate-score
+  "Calculates the score of a list of cards."
+  [cards]
+  (let [card-values (range (count cards) 0 -1)
+        scores (map #(* %1 %2) card-values cards)]
+    (apply + scores)))
+
+; ---------------------------------------
+; problem 1
+
 (defn play-game1
   "Plays the game according to problem 1 rules. Returns the winning card list."
   [player1-cards player2-cards]
@@ -40,6 +50,13 @@
                     player1-new-cards (rest player1-cards)]
                 (recur player1-new-cards player2-new-cards))))))
 
+; ---------------------------------------
+; results
+
+(defn day22-1
+  []
+  (calculate-score (play-game1 player1-cards player2-cards)))
+
 (defn -main
   []
-  (println (play-game1 player1-cards player2-cards)))
+  (println (day22-1)))
