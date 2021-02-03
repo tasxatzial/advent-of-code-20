@@ -65,6 +65,42 @@
         true
         (recur p1-cur-cards (rest p1-rest-cards) p2-cur-cards (rest p2-rest-cards))))))
 
+(defn play-game2
+  "Plays the game according to problem 2 rules. Returns a vector of the winning player id
+  (1 or 2) and the winning card list."
+  ([]
+   (play-game2 [1 (list player1-cards)] [2 (list player2-cards)]))
+  ([p1 p2]
+   (let [all-p1-cards (second p1)
+         all-p2-cards (second p2)
+         p1-cur-cards (first all-p1-cards)
+         p2-cur-cards (first all-p2-cards)]
+     (cond
+       (empty? p1-cur-cards) [2 p2-cur-cards]
+       (empty? p2-cur-cards) [1 p1-cur-cards]
+       :else (if (same-configuration? p1-cur-cards (rest all-p1-cards) p2-cur-cards (rest all-p2-cards))
+               [1 p1-cur-cards]
+               (let [p1-play (first p1-cur-cards)
+                     p2-play (first p2-cur-cards)]
+                 (if (and (>= (dec (count p1-cur-cards)) p1-play)
+                          (>= (dec (count p2-cur-cards)) p2-play))
+                   (let [[win-player-id _] (play-game2 [1 (list (take p1-play (rest p1-cur-cards)))]
+                                                       [2 (list (take p2-play (rest p2-cur-cards)))])]
+                     (if (= 1 win-player-id)
+                       (let [p1-new-cards (concat (rest p1-cur-cards) (list p1-play p2-play))
+                             p2-new-cards (rest p2-cur-cards)]
+                         (recur [1 (conj all-p1-cards p1-new-cards)] [2 (conj all-p2-cards p2-new-cards)]))
+                       (let [p2-new-cards (concat (rest p2-cur-cards) (list p2-play p1-play))
+                             p1-new-cards (rest p1-cur-cards)]
+                         (recur [1 (conj all-p1-cards p1-new-cards)] [2 (conj all-p2-cards p2-new-cards)]))))
+                   (if (> p1-play p2-play)
+                     (let [p1-new-cards (concat (rest p1-cur-cards) (list p1-play p2-play))
+                           p2-new-cards (rest p2-cur-cards)]
+                       (recur [1 (conj all-p1-cards p1-new-cards)] [2 (conj all-p2-cards p2-new-cards)]))
+                     (let [p2-new-cards (concat (rest p2-cur-cards) (list p2-play p1-play))
+                           p1-new-cards (rest p1-cur-cards)]
+                       (recur [1 (conj all-p1-cards p1-new-cards)] [2 (conj all-p2-cards p2-new-cards)]))))))))))
+
 ; ---------------------------------------
 ; results
 
