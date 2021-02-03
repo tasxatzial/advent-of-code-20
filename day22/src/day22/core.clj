@@ -108,6 +108,11 @@
   []
   (calculate-score (play-game1 player1-cards player2-cards)))
 
+(defn day22-2
+  []
+  (calculate-score (second (play-game2))))
+
 (defn -main
   []
-  (println (day22-1)))
+  (println (day22-1))
+  (println (day22-2)))
