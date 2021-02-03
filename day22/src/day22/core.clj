@@ -15,7 +15,7 @@
 
 (defn gen-cards
   "Accepts a string describing either player1 data or player2 data. This string is one of
-  the two items from the list returned by parse(). Returns a lits of numbers that describes
+  the two items from the list returned by parse(). Returns a list of numbers that describes
   a player's cards."
   [s]
   (let [data (rest (clojure.string/split s #"\n"))]
@@ -49,6 +49,21 @@
               (let [player2-new-cards (concat (rest player2-cards) (list player2-play player1-play))
                     player1-new-cards (rest player1-cards)]
                 (recur player1-new-cards player2-new-cards))))))
+
+; ---------------------------------------
+; problem 2
+
+(defn same-configuration?
+  "Returns true if p1-cur-cards & p2-cur-cards are equal to the i-th
+  item in p1-rest-cards & p2-rest-cards respectively"
+  [p1-cur-cards p1-rest-cards p2-cur-cards p2-rest-cards]
+  (if (empty? p1-rest-cards)
+    false
+    (let [p1-cards (first p1-rest-cards)
+          p2-cards (first p2-rest-cards)]
+      (if (and (= p1-cards p1-cur-cards) (= p2-cards p2-cur-cards))
+        true
+        (recur p1-cur-cards (rest p1-rest-cards) p2-cur-cards (rest p2-rest-cards))))))
 
 ; ---------------------------------------
 ; results
