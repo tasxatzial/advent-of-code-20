@@ -21,6 +21,18 @@
       (recur (dec dest) picked-cups)
       dest)))
 
+(defn get-index
+  "Returns the index of num in col. Returns -1 if num does not appear
+  anywhere in col."
+  ([num col]
+   (get-index num col 0))
+  ([num col index]
+   (if (empty? col)
+     -1
+     (if (= (first col) num)
+       index
+       (recur num (rest col) (inc index))))))
+
 (defn -main
   []
   (println (num-to-seq input)))
