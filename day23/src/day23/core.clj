@@ -33,6 +33,30 @@
        index
        (recur num (rest col) (inc index))))))
 
+(defn play-game
+  "Plays total max-moves of the crab game."
+  ([max-moves]
+   (let [cups (num-to-seq input)]
+     (play-game cups max-moves)))
+  ([int-seq max-iter]
+   (if (= 0 max-iter)
+     int-seq
+     (let [current-cup (first int-seq)
+           picked-cups (take 3 (rest int-seq))
+           rest-cups (drop 4 int-seq)
+           dest-cup (find-dest-cup (dec current-cup) picked-cups)
+           dest-index (inc (get-index dest-cup rest-cups))
+           new-seq (concat (take dest-index rest-cups) picked-cups (drop dest-index rest-cups) (list current-cup))]
+       (recur new-seq (dec max-iter))))))
+
+(defn collect-cups
+  "Collects in clockwise fashion all cup labels starting after the cup labeled 1.
+  Returns the labels concatenated in a string."
+  [cups]
+  (let [index-one (get-index 1 cups)
+        new-cups (concat (drop index-one cups) (take index-one cups))]
+    (apply str (rest new-cups))))
+
 (defn -main
   []
-  (println (num-to-seq input)))
+  (println (collect-cups (play-game 100))))
