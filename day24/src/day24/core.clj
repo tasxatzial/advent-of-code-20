@@ -72,6 +72,31 @@
 ; ---------------------------------------
 ; problem 2
 
+(defn get-adjacent-tiles
+  "Returns the set of the adjacent tiles of tile [x y]."
+  [[x y]]
+  #{[(+ x 2) y]
+    [(- x 2) y]
+    [(inc x) (inc y)]
+    [(inc x) (dec y)]
+    [(dec x) (inc y)]
+    [(dec x) (dec y)]})
+
+(defn change-to-black
+  "Processes the set of tiles and returns a set of only those that will be
+  changed to black. Tiles that are already black are skipped."
+  [tiles current-blacks]
+  (reduce (fn [result tile]
+            (if (contains? current-blacks tile)
+              result
+              (let [adjacent-tiles (get-adjacent-tiles tile)
+                    adjacent-blacks (filter #(contains? current-blacks %) adjacent-tiles)]
+                (if (= 2 (count adjacent-blacks))
+                  (conj result tile)
+                  result))))
+          #{}
+          tiles))
+
 ; ---------------------------------------
 ; results
 
