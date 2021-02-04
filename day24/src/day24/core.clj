@@ -54,7 +54,7 @@
 ; problem 1
 
 (defn get-flipped-tiles
-  "Returns a set of tile coordinates for the black flipped tiles."
+  "Returns a set of the tiles that have been flipped to black."
   ([]
    (let [all-directions (map parse-directions input)]
      (get-flipped-tiles all-directions #{})))
@@ -108,6 +108,19 @@
       new-adjacent-blacks
       (conj new-adjacent-blacks tile))))
 
+(defn flip-tiles
+  "Flips the tiles max-iter times according to problem 2 rules. The set of
+  black tiles from problem 1 is used as starting set."
+  [tiles max-iter]
+  (if (= 0 max-iter)
+    tiles
+    (let [new-tiles (reduce (fn [result tile]
+                              (let [new-tiles (change-to-black tile tiles)]
+                                (into result new-tiles)))
+                            #{}
+                            tiles)]
+      (recur new-tiles (dec max-iter)))))
+
 ; ---------------------------------------
 ; results
 
@@ -115,6 +128,11 @@
   []
   (count (memoized-get-flipped-tiles)))
 
+(defn day24-2
+  []
+  (count (flip-tiles (memoized-get-flipped-tiles) 100)))
+
 (defn -main
   []
-  (println (day24-1)))
+  (println (day24-1))                                       ;420
+  (println (day24-2)))                                      ;4206
