@@ -45,6 +45,23 @@
              position
              directions))))
 
+; ---------------------------------------
+; problem 1
+
+(defn get-flipped-tiles
+  "Returns a set of tile coordinates for the black flipped tiles."
+  ([]
+   (let [all-directions (map parse-directions input)]
+     (get-flipped-tiles all-directions #{})))
+  ([all-directions flipped-tiles]
+   (reduce (fn [result directions]
+             (let [tile (get-tile directions)]
+               (if (contains? result tile)
+                 (disj result tile)
+                 (conj result tile))))
+           flipped-tiles
+           all-directions)))
+
 (defn -main
   []
-  (println (get-tile (parse-directions "wwwnwwwwwwwwenwwwwwwww"))))
+  (println (get-flipped-tiles)))
