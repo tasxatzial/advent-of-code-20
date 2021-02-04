@@ -82,8 +82,8 @@
     [(dec x) (inc y)]
     [(dec x) (dec y)]})
 
-(defn change-to-black
-  "Processes the set of tiles and returns a set of only those that will be
+(defn change-adjacent-to-black
+  "Processes a set of adjacent tiles and returns a set of only those that will be
   changed to black. Tiles that are already black are skipped."
   [tiles current-blacks]
   (reduce (fn [result tile]
@@ -96,6 +96,17 @@
                   result))))
           #{}
           tiles))
+
+(defn change-to-black
+  "Processes a tile & its adjacent tiles and returns a set of only those
+  that will be changed to black."
+  [tile current-blacks]
+  (let [adjacent-tiles (get-adjacent-tiles tile)
+        adjacent-blacks (filter #(contains? current-blacks %) adjacent-tiles)
+        new-adjacent-blacks (change-adjacent-to-black adjacent-tiles current-blacks)]
+    (if (or (= 0 (count adjacent-blacks)) (> (count adjacent-blacks) 2))
+      new-adjacent-blacks
+      (conj new-adjacent-blacks tile))))
 
 ; ---------------------------------------
 ; results
