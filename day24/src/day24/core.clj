@@ -16,7 +16,12 @@
 (def two-letter-directions (hash-set "se" "sw" "nw" "ne"))
 
 (def move-instructions
-  {"w" [-1 0] "e" [1 0] "se" [1 -1] "sw" [-1 -1] "nw" [-1 1] "ne" [1 1]})
+  {"w" [-2 0]
+   "e" [2 0]
+   "se" [1 -1]
+   "sw" [-1 -1]
+   "nw" [-1 1]
+   "ne" [1 1]})
 
 (defn parse-directions
   "Parses a string that contains the directions to a tile into a vector."
@@ -62,6 +67,18 @@
            flipped-tiles
            all-directions)))
 
+(def memoized-get-flipped-tiles (memoize get-flipped-tiles))
+
+; ---------------------------------------
+; problem 2
+
+; ---------------------------------------
+; results
+
+(defn day24-1
+  []
+  (count (memoized-get-flipped-tiles)))
+
 (defn -main
   []
-  (println (get-flipped-tiles)))
+  (println (day24-1)))
