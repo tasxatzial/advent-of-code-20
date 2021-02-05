@@ -45,6 +45,17 @@
           (recur next-number (inc iter))
           (recur (mod next-number modulo) (inc iter)))))))
 
+(defn find-encryption-key
+  "Finds the encryption key when the loop size is unknown."
+  [key1 key2]
+  (loop [value1 1
+         value2 1]
+    (if (= value2 key2)
+      value1
+      (let [next-number1 (* value1 key1)
+            next-number2 (* value2 subject-number)]
+        (recur (mod next-number1 modulo) (mod next-number2 modulo))))))
+
 ; ---------------------------------------
 ; results
 
