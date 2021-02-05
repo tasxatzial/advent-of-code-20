@@ -45,6 +45,14 @@
           (recur next-number (inc iter))
           (recur (mod next-number modulo) (inc iter)))))))
 
+; ---------------------------------------
+; results
+
+(defn day25-1
+  []
+  (let [loop-size (find-loop-size key1)]
+    (transform-public-key key2 loop-size)))
+
 (defn -main
   []
-  (println (find-loop-size key1)))
+  (println (day25-1)))                                      ;8329514
