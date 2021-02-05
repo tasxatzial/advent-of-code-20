@@ -1,6 +1,9 @@
 (ns day25.core
   (:gen-class))
 
+; ---------------------------------------
+; common
+
 (def input-file "resources\\input.txt")
 
 (defn parse
@@ -13,7 +16,10 @@
 (def key1 (Integer. ^String (first input)))
 (def key2 (Integer. ^String (second input)))
 (def subject-number 7)
-(defn modulo 20201227)
+(def modulo 20201227)
+
+; ---------------------------------------
+; problem 1
 
 (defn find-loop-size
   "Finds the loop size."
@@ -27,6 +33,18 @@
           (recur next-number (inc iter))
           (recur (mod next-number modulo) (inc iter)))))))
 
+(defn transform-public-key
+  "Finds the encryption key."
+  [key loop-size]
+  (loop [value 1
+         iter 0]
+    (if (= iter loop-size)
+      value
+      (let [next-number (* value key)]
+        (if (< next-number modulo)
+          (recur next-number (inc iter))
+          (recur (mod next-number modulo) (inc iter)))))))
+
 (defn -main
   []
-  (println (find-loop-size key2)))
+  (println (find-loop-size key1)))
