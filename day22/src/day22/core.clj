@@ -108,6 +108,7 @@
   []
   (calculate-score (play-game1 player1-cards player2-cards)))
 
+;slow, needs optimization
 (defn day22-2
   []
   (calculate-score (second (play-game2))))

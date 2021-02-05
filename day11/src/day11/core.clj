@@ -183,6 +183,7 @@
   []
   (count-occupied-seats (run-simulation (seats1) advance-seat-rules1)))
 
+;slow, needs optimization
 (defn day11-2
   []
   (count-occupied-seats (run-simulation (seats2) advance-seat-rules2)))

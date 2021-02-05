@@ -98,6 +98,7 @@
 
 (def day18-1
   (apply + (map (comp calculate-expr1 parse-expr) input)))
+
 (def day18-2
   (apply + (map calculate-expr2 input)))
 

@@ -87,7 +87,7 @@
         min-bus (find-earliest-bus bus-wait-times)]
     (* (first min-bus) (second min-bus))))
 
-;very slow, needs optimization
+;slow, needs optimization
 (defn day13-2
   []
   (find-min-timestamp))

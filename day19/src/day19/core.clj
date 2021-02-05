@@ -88,6 +88,14 @@
             #{}
             zero-msgs)))
 
+; ---------------------------------------
+; results
+
+;slow, needs optimization
+(defn day19-1
+  []
+  (count (zero-matches)))
+
 (defn -main
   []
-  (println (count (zero-matches))))
+  (println (day19-1)))                                      ;160
