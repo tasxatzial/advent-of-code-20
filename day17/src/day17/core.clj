@@ -23,21 +23,26 @@
   [keyword]
   (map #(Integer. ^String %) (rest (clojure.string/split (str keyword) #"[.|:]"))))
 
-(defn generate-adjacent-0
-  "Generate the adjacent points of [0 0 0]."
-  ([] (generate-adjacent-0 '() -1 -1 -1))
-  ([result x y z]
-   (if (and (= x 0) (= y 0) (= z 0))
-     (recur result 0 0 1)
-     (if (= z 2)
-       (recur result x (inc y) -1)
-       (if (= y 2)
-         (recur result (inc x) -1 -1)
-         (if (= x 2)
-           result
-           (recur (conj result (list x y z)) x y (inc z))))))))
+(def diffs [-1 0 1])
+(def diffs-count 3)
+(def diffs-range (vec (range diffs-count)))
 
-(def neighbor-diffs (generate-adjacent-0))
+(defn gen-adjacent
+  "Returns a list of difference vectors between point 0 (in the specified dimension)
+   and its adjacent points."
+  ([dimension-size]
+   (->> (gen-adjacent dimension-size 0 (vec (take dimension-size (repeat 0))))
+        flatten
+        (partition 3)
+        (map vec)))
+  ([dimension-size dimension-index arr]
+   (if (= dimension-index dimension-size)
+     arr
+     (for [i diffs-range
+           :let [arr (assoc arr dimension-index (get diffs i))]]
+       (gen-adjacent dimension-size (inc dimension-index) arr)))))
+
+(def neighbor-diffs (gen-adjacent 3))
 
 (defn gen-adjacent-keywords
   "Generate all adjacent keywords of :x:y:z"
