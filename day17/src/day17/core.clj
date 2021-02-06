@@ -80,6 +80,24 @@
       (let [row-result (gen-row-points dimension-size index-y (first input-tmp))]
         (recur (into result row-result) (rest input-tmp) (inc index-y))))))
 
+(defn change-adjacent-to-active
+  "Processes a list of adjacent keywords and returns a set of only those that
+  correspond to points that will be changed to active.
+  Points that are already active are skipped."
+  [keywords current-active neighbor-diffs]
+  (reduce (fn [result keyword]
+            (let [adjacent-keywords (gen-adjacent-keywords keyword neighbor-diffs)
+                  adjacent-active (filter #(contains? current-active %) adjacent-keywords)]
+              (if (contains? current-active keyword)
+                (if (or (= 2 (count adjacent-active)) (= 3 (count adjacent-active)))
+                  (conj result keyword)
+                  result)
+                (if (= 3 (count adjacent-active))
+                  (conj result keyword)
+                  result))))
+          #{}
+          keywords))
+
 ; ---------------------------------------
 ; problem 1
 
@@ -88,6 +106,7 @@
 
 ; ---------------------------------------
 ; results
+
 
 (defn -main
   []
