@@ -113,6 +113,19 @@
          (conj new-adjacent-active keyword)
          new-adjacent-active)))))
 
+(defn simulate
+  "Runs the simulation max-iter times. Returns the set of only the keywords
+  that correspond to active points."
+  [keywords neighbor-diffs max-iter]
+  (if (= 0 max-iter)
+    keywords
+    (let [new-keywords (reduce (fn [result keyword]
+                                 (let [new-active (change-to-active keyword keywords neighbor-diffs)]
+                                   (into result new-active)))
+                               #{}
+                               keywords)]
+      (recur new-keywords neighbor-diffs (dec max-iter)))))
+
 ; ---------------------------------------
 ; problem 1
 
