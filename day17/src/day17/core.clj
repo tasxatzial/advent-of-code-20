@@ -34,7 +34,7 @@
    (->> (gen-adjacent dimension-size 0 (vec (take dimension-size (repeat 0))))
         flatten
         (partition dimension-size)
-        (filter #(not= [0 0 0] %))))
+        (filter #(not= (take dimension-size (repeat 0)) %))))
   ([dimension-size dimension-index arr]
    (if (= dimension-index dimension-size)
      arr
@@ -133,12 +133,24 @@
 (def neighbor-diffs1 (gen-adjacent 3))
 
 ; ---------------------------------------
+; problem 2
+
+(def init-points2 (gen-init-points 4))
+(def neighbor-diffs2 (gen-adjacent 4))
+
+; ---------------------------------------
 ; results
 
 (defn day17-1
   []
   (count (simulate init-points1 neighbor-diffs1 6)))
 
+;slow, needs optimization
+(defn day17-2
+  []
+  (count (simulate init-points2 neighbor-diffs2 6)))
+
 (defn -main
   []
-  (println (day17-1)))
+  (println (day17-1))
+  (println (day17-2)))
