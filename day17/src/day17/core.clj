@@ -135,7 +135,10 @@
 ; ---------------------------------------
 ; results
 
+(defn day17-1
+  []
+  (count (simulate init-points1 neighbor-diffs1 6)))
 
 (defn -main
   []
-  (println init-points1))
+  (println (day17-1)))
