@@ -98,6 +98,21 @@
           #{}
           keywords))
 
+(defn change-to-active
+  "Processes a keyword & its adjacent keywords and returns a set of only those
+  that correspond to points that will be changed to active."
+  ([keyword current-active neighbor-diffs]
+   (let [adjacent-keywords (gen-adjacent-keywords keyword neighbor-diffs)
+         adjacent-active (filter #(contains? current-active %) adjacent-keywords)
+         new-adjacent-active (change-adjacent-to-active adjacent-keywords current-active neighbor-diffs)]
+     (if (contains? current-active keyword)
+       (if (or (= 2 (count adjacent-active)) (= 3 (count adjacent-active)))
+         (conj new-adjacent-active keyword)
+         new-adjacent-active)
+       (if (= 3 (count adjacent-active))
+         (conj new-adjacent-active keyword)
+         new-adjacent-active)))))
+
 ; ---------------------------------------
 ; problem 1
 
