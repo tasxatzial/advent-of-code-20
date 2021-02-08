@@ -79,7 +79,7 @@
   "Returns a vector of vectors. Each vector contains the allergen name and the
   corresponding ingredient."
   [possible-ingredients]
-  (loop [result []
+  (loop [result {}
          ingredients possible-ingredients]
     (if (empty? ingredients)
       result
@@ -101,7 +101,13 @@
   []
   (count-non-allergens))
 
+(defn day21-2
+  []
+  (let [allergens (figure-allergens (memoized-update-all-possible-ingredients))
+        sorted-ingredients (map #(get allergens %) (sort (map first allergens)))]
+    (clojure.string/join "," sorted-ingredients)))
+
 (defn -main
   []
   (println (day21-1))                                       ;1958
-  (println (figure-allergens (memoized-update-all-possible-ingredients))))
+  (println (day21-2)))                                      ;xxscc,mjmqst,gzxnc,vvqj,trnnvn,gbcjqbm,dllbjr,nckqzsg
