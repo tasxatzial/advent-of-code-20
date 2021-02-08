@@ -54,6 +54,12 @@
           {}
           parsed-input))
 
+(defn collect-possible-allergen-ingredients
+  "Returns a set of possible ingredients that could be allergens."
+  []
+  (let [allergens-map (update-all-possible-ingredients)]
+    (reduce into (map #(second %) allergens-map))))
+
 (defn -main
   []
   (println parsed-input))
