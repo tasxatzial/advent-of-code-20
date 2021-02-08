@@ -54,10 +54,12 @@
           {}
           parsed-input))
 
+(def memoized-update-all-possible-ingredients (memoize update-all-possible-ingredients))
+
 (defn collect-possible-allergen-ingredients
   "Returns a set of possible ingredients that could be allergens."
   []
-  (let [allergens-map (update-all-possible-ingredients)]
+  (let [allergens-map (memoized-update-all-possible-ingredients)]
     (reduce into (map #(second %) allergens-map))))
 
 (defn count-non-allergens
@@ -71,6 +73,28 @@
             parsed-input)))
 
 ; ---------------------------------------
+; problem 2
+
+(defn figure-allergens
+  "Returns a vector of vectors. Each vector contains the allergen name and the
+  corresponding ingredient."
+  [possible-ingredients]
+  (loop [result []
+         ingredients possible-ingredients]
+    (if (empty? ingredients)
+      result
+      (let [identified (filter #(= 1 (count (second %))) ingredients)
+            identified-ingredients (reduce into (map second identified))
+            new-result (reduce (fn [result [allergen ingredient]]
+                                      (assoc result allergen (first ingredient)))
+                                    {}
+                                    identified)
+            unidentified (filter #(not= 1 (count (second %))) ingredients)
+            clear-identified #(vector (first %) (clojure.set/difference (second %) identified-ingredients))
+            new-ingredients (map clear-identified unidentified)]
+        (recur (into result new-result) new-ingredients)))))
+
+; ---------------------------------------
 ; results
 
 (defn day21-1
@@ -79,4 +103,5 @@
 
 (defn -main
   []
-  (println (day21-1)))                                      ;1958
+  (println (day21-1))                                       ;1958
+  (println (figure-allergens (memoized-update-all-possible-ingredients))))
