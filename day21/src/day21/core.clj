@@ -60,6 +60,23 @@
   (let [allergens-map (update-all-possible-ingredients)]
     (reduce into (map #(second %) allergens-map))))
 
+(defn count-non-allergens
+  "Returns the total number of ingredients from the food that cannot be allergens."
+  []
+  (let [possible-allergens (collect-possible-allergen-ingredients)]
+    (reduce (fn [result [_ unknown-allergens]]
+              (let [non-allergens (clojure.set/difference unknown-allergens possible-allergens)]
+                (+ result (count non-allergens))))
+            0
+            parsed-input)))
+
+; ---------------------------------------
+; results
+
+(defn day21-1
+  []
+  (count-non-allergens))
+
 (defn -main
   []
-  (println parsed-input))
+  (println (day21-1)))                                      ;1958
