@@ -95,7 +95,12 @@
   [tile-image x y]
   (get-in tile-image [(- tile-const y) x]))
 
+(defn transform-1432
+  "Flips a tile-image along the diagonal starting from top-left."
+  [tile-image x y]
+  (get-in tile-image [x y]))
+
 (defn -main
   []
   (println first-tile)
-  (println (transform (second first-tile) transform-4321)))
+  (println (transform (second first-tile) transform-1432)))
