@@ -21,10 +21,10 @@
         tile-text (first tile-lines)
         tile (vec (rest tile-lines))
         parsed-tile-text (clojure.string/split tile-text #"[ |:]")]
-    [(Integer. ^String (second parsed-tile-text)) tile]))
+    {(keyword (str (Integer. ^String (second parsed-tile-text)))) tile}))
 
-(def first-tile (create-tile (first parsed-input)))
-(def tile-dim (count (second first-tile)))
+(def tiles (into {} (map create-tile parsed-input)))
+(def tile-dim (count (second (first tiles))))
 (def tile-const (dec tile-dim))
 
 (defn get-top-side
@@ -105,7 +105,42 @@
   [tile-image x y]
   (get-in tile-image [(- tile-const x) (- tile-const y)]))
 
+(def func-to-key
+  {transform-4123 :4123
+   transform-3412 :3412
+   transform-2341 :2341
+   transform-2143 :2143
+   transform-4321 :4321
+   transform-1432 :1432
+   transform-3214 :3214})
+
+(def key-to-func
+  {:4123 transform-4123
+   :3412 transform-3412
+   :2341 transform-2341
+   :2143 transform-2143
+   :4321 transform-4321
+   :1432 transform-1432
+   :3214 transform-3214})
+
+(defn create-tile-sides
+  "Returns a list of two items. First item is the tile-num keyword.
+  Second item is a list of (transform-keyword {:top top-side :bottom bottom-side
+  :left left-side :right right-side}) for each of the transforms."
+  [[tile-num tile-image]]
+  (let [tile-sides (reduce (fn [result [func keyword]]
+                             (let [transformed-image (transform tile-image func)
+                                   tile-sides (get-tile-sides transformed-image)]
+                               (conj result (list keyword tile-sides))))
+                           '()
+                           func-to-key)]
+    (list tile-num tile-sides)))
+
+(defn create-all-tiles-sides
+  "Maps create-tile-sides() to every item in the initial tiles map."
+  []
+  (map create-tile-sides tiles))
+
 (defn -main
   []
-  (println first-tile)
-  (println (transform (second first-tile) transform-3214)))
+  (println (create-all-tiles-sides)))
