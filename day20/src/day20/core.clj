@@ -57,8 +57,8 @@
     (assoc {} :top top-side :bottom bottom-side :left left-side :right right-side)))
 
 (defn transform
+  "Applies transform-func to tile-image."
   [tile-image transform-func]
-  "Rotates a tile-image 90 degrees clockwise."
   (loop [result []
          result-row []
          x 0
@@ -71,37 +71,37 @@
           (recur result (conj result-row new-xy) (inc x) y))))))
 
 (defn transform-4123
-  "Rotates a tile-image 90 degrees clockwise."
+  "Returns the new value of [x, y] when transform is: rotate 90 degrees clockwise."
   [tile-image x y]
   (get-in tile-image [x (- tile-const y)]))
 
 (defn transform-3412
-  "Rotates a tile-image 180 degrees."
+  "Returns the new value of [x, y] when transform is: rotate 180 degrees."
   [tile-image x y]
   (get-in tile-image [(- tile-const y) (- tile-const x)]))
 
 (defn transform-2341
-  "Rotates a tile-image 270 degrees clockwise."
+  "Returns the new value of [x, y] when transform is: rotate 270 degrees clockwise."
   [tile-image x y]
   (get-in tile-image [(- tile-const x) y]))
 
 (defn transform-2143
-  "Flips a tile-image along the vertical axis."
+  "Returns the new value of [x, y] when transform is: flip along the vertical axis."
   [tile-image x y]
   (get-in tile-image [y (- tile-const x)]))
 
 (defn transform-4321
-  "Flips a tile-image along the horizontal axis."
+  "Returns the new value of [x, y] when transform is: flip along the horizontal axis."
   [tile-image x y]
   (get-in tile-image [(- tile-const y) x]))
 
 (defn transform-1432
-  "Flips a tile-image along the diagonal starting from top-left."
+  "Returns the new value of [x, y] when transform is: flip along the top-left diagonal."
   [tile-image x y]
   (get-in tile-image [x y]))
 
 (defn transform-3214
-  "Flips a tile-image along the diagonal starting from top-right."
+  "Returns the new value of [x, y] when transform is: flip along the top-right diagonal."
   [tile-image x y]
   (get-in tile-image [(- tile-const x) (- tile-const y)]))
 
