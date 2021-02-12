@@ -30,22 +30,22 @@
 (defn get-top-side
   "Returns the top side of a tile-image."
   [tile-image]
-  (map identity (first tile-image)))
+  (first tile-image))
 
 (defn get-bottom-side
   "Returns the bottom side of a tile-image."
   [tile-image]
-  (map identity (last tile-image)))
+  (last tile-image))
 
 (defn get-left-side
   "Returns the left side of a tile-image."
   [tile-image]
-  (map first tile-image))
+  (apply str (map first tile-image)))
 
 (defn get-right-side
   "Returns the right side of a tile-image."
   [tile-image]
-  (map last tile-image))
+  (apply str (map last tile-image)))
 
 (defn get-tile-sides
   "Returns a map that contains all sides of a tile-image."
