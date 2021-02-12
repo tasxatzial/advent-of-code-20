@@ -75,7 +75,12 @@
   [tile-image x y]
   (get (get tile-image x) (- tile-const y)))
 
+(defn transform-3412
+  "Rotates a tile-image 180 degrees."
+  [tile-image x y]
+  (get (get tile-image (- tile-const y)) (- tile-const x)))
+
 (defn -main
   []
   (println first-tile)
-  (println (transform (second first-tile) transform-4123)))
+  (println (transform (second first-tile) transform-3412)))
