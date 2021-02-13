@@ -143,6 +143,22 @@
 
 (def memoized-create-all-tile-sides (memoize create-tile-sides))
 
+(defn combine-matches
+  "Combines a struct returned by gen-matches() with all-matches. For example if
+  matches = {:2687 {:right {:3813 :3214}, :bottom {}, :left {}, :top {}}}
+  all-matches = {:2687 {:right {:3413 :3214}, :bottom {:3413 :3214}, :left {:3413 :3214}, :top {:3413 :3214}}}
+  then the result would be
+  {:2687 {:top {:3413 :3214}, :left {:3413 :3214}, :right {:3813 :3214, :3413 :3214}, :bottom {:3413 :3214}}}"
+  [matches all-matches]
+  (reduce (fn [result [tile-num tile-matches]]
+            (if-let [present-matches (tile-num all-matches)]
+              (let [side-keys [:top :left :right :bottom]
+                    new-matches (into {} (map #(hash-map % (into (% tile-matches) (% present-matches))) side-keys))]
+                (assoc result tile-num new-matches))
+              (assoc result tile-num matches)))
+          all-matches
+          matches))
+
 (defn gen-matches
   "Returns a struct that represents which tile sides match. For example
   {:2687 {:left {:2987 :3214}, :top {}}, :2987 {:right {:2687 :3214}, :bottom {}}}
