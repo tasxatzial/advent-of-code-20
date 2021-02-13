@@ -15,7 +15,8 @@
 
 (defn create-tile
   "Returns a [tile-number tile-image] that represents a tile.
-  tile-image is a vector of strings (one string per input line)."
+  tile-image is a vector of strings (one string per input line).
+  tile-number is the number of the tile (keyword)."
   [input]
   (let [tile-lines (clojure.string/split input #"\n")
         tile-text (first tile-lines)
@@ -124,23 +125,27 @@
    :3214 transform-3214})
 
 (defn create-tile-sides
-  "Returns a list of two items. First item is the tile-num keyword.
-  Second item is a list of (transform-keyword {:top top-side :bottom bottom-side
-  :left left-side :right right-side}) for each of the transforms."
-  [[tile-num tile-image]]
-  (let [tile-sides (reduce (fn [result [func keyword]]
-                             (let [transformed-image (transform tile-image func)
-                                   tile-sides (get-tile-sides transformed-image)]
-                               (conj result (list keyword tile-sides))))
-                           '()
-                           func-to-key)]
-    (list tile-num tile-sides)))
+  "If called with one argument, it returns a struct that represents the sides of the
+  tile-image for each one of the 8 similarity transforms. First item of the struct is the
+  tile number keyword. Second item is a list of
+  (transform-keyword {:top top-side :bottom bottom-side :left left-side :right right-side}).
+  If called with zero arguments, it maps itself to the tiles list."
+  ([[tile-num tile-image]]
+   (let [tile-sides (reduce (fn [result [func keyword]]
+                              (let [transformed-image (transform tile-image func)
+                                    tile-sides (get-tile-sides transformed-image)]
+                                (conj result (list keyword tile-sides))))
+                            '()
+                            func-to-key)]
+     (list tile-num tile-sides)))
+  ([]
+   (map create-tile-sides tiles)))
 
-(defn create-all-tiles-sides
-  "Maps create-tile-sides() to every item in the initial tiles map."
-  []
-  (map create-tile-sides tiles))
+(def memoized-create-all-tile-sides (memoize create-tile-sides))
+
+(def first-tile-sides (first (memoized-create-all-tile-sides)))
+(def second-tiles-sides (second (memoized-create-all-tile-sides)))
 
 (defn -main
   []
-  (println (create-all-tiles-sides)))
+  (println first-tile-sides))
