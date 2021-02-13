@@ -143,6 +143,24 @@
 
 (def memoized-create-all-tile-sides (memoize create-tile-sides))
 
+(defn gen-matches
+  "Returns a struct that represents which tile sides match. For example
+  {:2687 {:left {:2987 :3214}, :top {}}, :2987 {:right {:2687 :3214}, :bottom {}}}
+  means tile 2687 left side matches with tile 2987 right side."
+  ([tile1-num [tile1-transform tile1-sides] tile2-num [tile2-transform tile2-sides]]
+   (let [r1 (when (= (:top tile1-sides) (:bottom tile2-sides))
+              [:top :bottom])
+         r2 (when (= (:left tile1-sides) (:right tile2-sides))
+              [:left :right])
+         r3 (when (= (:bottom tile1-sides) (:top tile2-sides))
+              [:bottom :top])
+         r4 (when (= (:right tile1-sides) (:left tile2-sides))
+              [:right :left])
+         r0 (filter seq (conj '() r1 r2 r3 r4))
+         r5 (into {} (map #(hash-map (first %) {tile2-num tile2-transform}) r0))
+         r6 (into {} (map #(hash-map (second %) {tile1-num tile1-transform}) r0))]
+     (hash-map tile1-num r5 tile2-num r6))))
+
 (def first-tile-sides (first (memoized-create-all-tile-sides)))
 (def second-tiles-sides (second (memoized-create-all-tile-sides)))
 
