@@ -71,6 +71,11 @@
         (let [new-xy (transform-func tile-image x y)]
           (recur result (conj result-row new-xy) (inc x) y))))))
 
+(defn transform-1234
+  "Returns the new value of [x, y] when transform is: identity."
+  [tile-image x y]
+  (get-in tile-image [y x]))
+
 (defn transform-4123
   "Returns the new value of [x, y] when transform is: rotate 90 degrees clockwise."
   [tile-image x y]
@@ -107,7 +112,8 @@
   (get-in tile-image [(- tile-const x) (- tile-const y)]))
 
 (def func-to-key
-  {transform-4123 :4123
+  {transform-1234 :1234
+   transform-4123 :4123
    transform-3412 :3412
    transform-2341 :2341
    transform-2143 :2143
@@ -116,7 +122,8 @@
    transform-3214 :3214})
 
 (def key-to-func
-  {:4123 transform-4123
+  {:1234 transform-1234
+   :4123 transform-4123
    :3412 transform-3412
    :2341 transform-2341
    :2143 transform-2143
@@ -175,23 +182,24 @@
   :2987 {:3214 {:left {}, :bottom {}, :right {:2687 :3214}, :top {}}}}
   meaning that the left side of tile 2687 (after transform-3214) matches with the right side
   of tile 2987 (after transform-1243)."
-  ([tile1-num [tile1-transform tile1-sides] tile2-num [tile2-transform tile2-sides]]
-   (let [r1 (when (= (:top tile1-sides) (:bottom tile2-sides))
-              [:top :bottom])
-         r2 (when (= (:left tile1-sides) (:right tile2-sides))
-              [:left :right])
-         r3 (when (= (:bottom tile1-sides) (:top tile2-sides))
-              [:bottom :top])
-         r4 (when (= (:right tile1-sides) (:left tile2-sides))
-              [:right :left])
-         r0 (filter seq (conj '() r1 r2 r3 r4))
-         r5 (into default-matches (map #(hash-map (first %) {tile2-num tile2-transform}) r0))
-         r6 (into default-matches (map #(hash-map (second %) {tile1-num tile1-transform}) r0))]
-     {tile1-num {tile1-transform r5} tile2-num {tile2-transform r6}})))
-
+  [tile1-num [tile1-transform-key tile1-sides] tile2-num [tile2-transform-key tile2-sides]]
+  (let [r1 (when (= (:top tile1-sides) (:bottom tile2-sides))
+             [:top :bottom])
+        r2 (when (= (:left tile1-sides) (:right tile2-sides))
+             [:left :right])
+        r3 (when (= (:bottom tile1-sides) (:top tile2-sides))
+             [:bottom :top])
+        r4 (when (= (:right tile1-sides) (:left tile2-sides))
+             [:right :left])
+        r0 (filter seq (conj '() r1 r2 r3 r4))
+        r5 (into default-matches (map #(hash-map (first %) {tile2-num tile2-transform-key}) r0))
+        r6 (into default-matches (map #(hash-map (second %) {tile1-num tile1-transform-key}) r0))]
+    {tile1-num {tile1-transform-key r5} tile2-num {tile2-transform-key r6}})
+  )
 
 (def first-tile-sides (first (memoized-create-all-tile-sides)))
-(def second-tiles-sides (second (memoized-create-all-tile-sides)))
+(def second-tiles-sides (nth (memoized-create-all-tile-sides) 7))
+
 
 (defn -main
   []
