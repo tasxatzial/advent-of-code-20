@@ -149,39 +149,60 @@
    (map create-tile-sides tiles)))
 
 (def memoized-create-all-tile-sides (memoize create-tile-sides))
-(def side-keys [:top :left :right :bottom])
 (def default-matches {:left {} :bottom {} :right {} :top {}})
 
-(defn combine-matches
-  "Combines tile-matches (returned by gen-matches()) with all-matches. For example if
-  tile-matches = {:2687 {:3514 {:left {:2987 :1243}, :top {:2987 :1243} :bottom {} :right {}}}},
-  all-matches = {:2687 {:3514 {:top {:3578 :1243}, :bottom {}, :left {}, :right {}}}}
+(defn update-side-matches
+  "Updates the map of matches for a tile. For example if
+  old-matches = {:left {:2987 #{:1234}, :3278 #{:2314}}, :top {} :bottom {} :right {}}
+  new-matches = {:left {:2987 #{:4123}, :top {} :bottom {} :right {}}
   then the result would be
-  {:2687 {:3514 {:top {:3578 :1243, :2987 :1243}, :left {:2987 :1243}, :right {}, :bottom {}}}}"
+  {:left {:2987 #{:1234, :4123}, :3278 #{:2314}}, :top {} :bottom {} :right {}}}}"
+  [old-matches new-matches]
+  (reduce (fn [result [side-key side-match]]
+            (if (empty? side-match)
+              (conj result [side-key (side-key old-matches)])
+              (let [old-side-matches (side-key old-matches)
+                    tile-key (first (first side-match))
+                    transform-keys (second (first side-match))]
+                (if-let [old-tile-matches (tile-key old-side-matches)]
+                  (let [new-transform-keys (into old-tile-matches transform-keys)]
+                    (assoc result side-key (into old-side-matches {tile-key new-transform-keys})))
+                  (assoc result side-key (into old-side-matches {tile-key transform-keys}))))))
+          {}
+          new-matches))
+
+(defn combine-matches
+  "Combines tile-matches (returned by gen-transform-matches()) with all-matches. For example if
+  tile-matches = {:2687 {:3214 {:left {}, :bottom {:1013 #{:3214}}, :right {}, :top {:1013 #{:3214}}}},
+                  :1013 {:3214 {:left {}, :bottom {:2687 #{:3214}}, :right {}, :top {:2687 #{:3214}}}}},
+  all-matches = {:2687 {:3514 {:top {:1013 #{:1243} :1054 #{:4123}, :bottom {}, :left {}, :right {}}}}
+  then the result would be
+  {:2687 {:3214 {:left {}, :bottom {:1013 #{:3214}}, :right {}, :top {:1013 #{:3214, :1243}, :1054 #{:4123}}}},
+   :1013 {:3214 {:left {}, :bottom {:2687 #{:3214}}, :right {}, :top {:2687 #{:3214}}}}}"
   [tile-matches all-matches]
-  (reduce (fn [result [tile-num transform-matches]]
+  (reduce (fn [result [tile-key transform-matches]]
             (let [transform-key (first (first transform-matches))
                   matches (second (first transform-matches))]
-              (if-let [present-num (tile-num all-matches)]
-                (if-let [present-transform (transform-key present-num)]
-                  (let [new-matches (into {} (map #(hash-map % (into (% present-transform) (% matches))) side-keys))]
-                    (assoc result tile-num {transform-key new-matches}))
-                  (assoc result tile-num (into present-num {transform-key matches})))
-                (assoc result tile-num {transform-key matches}))))
+              (if-let [old-transform-matches (tile-key all-matches)]
+                (if-let [old-matches (transform-key old-transform-matches)]
+                  (let [new-matches (update-side-matches old-matches matches)]
+                    (assoc result tile-key (into old-transform-matches {transform-key new-matches})))
+                  (assoc result tile-key (into old-transform-matches {transform-key matches})))
+                (assoc result tile-key {transform-key matches}))))
           all-matches
           tile-matches))
 
-(defn gen-matches
+(defn gen-transform-matches
   "Returns a struct that represents which tile sides match. For example if
   tile1-num = :2698
   [tile1-transform tile1-sides] = (:3214 {:top #####.#..., :bottom ##.###.###, :left ###.#..###, :right ....#.#..#})
   tile2-num = :2987
-  tile2-transform tile2-sides] = (:3214 {:top ##.##....., :bottom ##.##....., :left ###.#..###, :right ###.#..###})
+  tile2-transform tile2-sides] = (:2134 {:top ##.##....., :bottom ##.##....., :left ###.#..###, :right ###.#..###})
   then the result would be
-  {:2687 {:3214 {:left {:2987 :3214}, :bottom {}, :right {}, :top {}}},
-  :2987 {:3214 {:left {}, :bottom {}, :right {:2687 :3214}, :top {}}}}
+  {:2687 {:3214 {:left {:2987 #{:2134}}, :bottom {}, :right {}, :top {}}},
+  :2987 {:2134 {:left {}, :bottom {}, :right {:2687 #{:3214}}, :top {}}}}
   meaning that the left side of tile 2687 (after transform-3214) matches with the right side
-  of tile 2987 (after transform-1243)."
+  of tile 2987 (after transform-2134)."
   [tile1-num [tile1-transform-key tile1-sides] tile2-num [tile2-transform-key tile2-sides]]
   (let [r1 (when (= (:top tile1-sides) (:bottom tile2-sides))
              [:top :bottom])
@@ -192,15 +213,59 @@
         r4 (when (= (:right tile1-sides) (:left tile2-sides))
              [:right :left])
         r0 (filter seq (conj '() r1 r2 r3 r4))
-        r5 (into default-matches (map #(hash-map (first %) {tile2-num tile2-transform-key}) r0))
-        r6 (into default-matches (map #(hash-map (second %) {tile1-num tile1-transform-key}) r0))]
-    {tile1-num {tile1-transform-key r5} tile2-num {tile2-transform-key r6}})
-  )
+        r5 (into default-matches (map #(hash-map (first %) {tile2-num #{tile2-transform-key}}) r0))
+        r6 (into default-matches (map #(hash-map (second %) {tile1-num #{tile1-transform-key}}) r0))]
+    {tile1-num {tile1-transform-key r5} tile2-num {tile2-transform-key r6}}))
 
-(def first-tile-sides (first (memoized-create-all-tile-sides)))
-(def second-tiles-sides (nth (memoized-create-all-tile-sides) 7))
+(defn gen-tile-matches
+  "If called with 3 arguments, it repeatedly calls gen-transform-matches() for each item in tile1-transforms
+  using a fixed tile2-num & tile2-transform.
+  If called with 2 arguments, it repeatedly calls gen-transform-matches() for each item in tile1-transforms
+  for each item in tile2-transforms.
+  Finally it combines all the results. See gen-tile-matches-example()"
+  ([[tile1-num tile1-transforms] tile2-num tile2-transform]
+   (reduce (fn [result tile1-transform]
+             (let [matches (gen-transform-matches tile1-num tile1-transform tile2-num tile2-transform)]
+               (combine-matches matches result)))
+           {}
+           tile1-transforms))
+  ([[tile1-num tile1-transforms] [tile2-num tile2-transforms]]
+   (reduce (fn [result tile1-transform]
+             (reduce (fn [result2 tile2-transform]
+                       (let [tile-matches (gen-transform-matches tile1-num tile1-transform tile2-num tile2-transform)]
+                         (combine-matches tile-matches result2)))
+                     result
+                     tile2-transforms))
+           {}
+           tile1-transforms)))
 
+(defn gen-tile-matches-example
+  "Example demonstrating gen-tile-matches()"
+  []
+  (let [[tile1-key tile1-transforms] '(:2687
+                                        ((:3214 {:top "##.##.....", :bottom "#.#####...", :left "###.#..###", :right "#.....##.."})
+                                         (:1432 {:top "###.###.##", :bottom ".....##.##", :left "#..#.#....", :right "###..#.###"})
+                                         (:4321 {:top "##.##.....", :bottom "#..#.#....", :left "##.###.###", :right "##.##....."})
+                                         (:2143 {:top "....#.#..#", :bottom "##.###.###", :left ".....##.##", :right "###.###.##"})
+                                         (:2341 {:top "##.###.###", :bottom "##.##.....", :left "###..#.###", :right "#..#.#...."})
+                                         (:3412 {:top "###.#..###", :bottom "....#.#..#", :left "##.##.....", :right "##.###.###"})
+                                         (:4123 {:top ".....##.##", :bottom "###.###.##", :left "....#.#..#", :right "###.#..###"})
+                                         (:1234 {:top "#..#.#....", :bottom "###..#.###", :left "###.###.##", :right ".....##.##"})))
+        [tile2-key tile2-transforms] '(:1013
+                                        ((:3214 {:top "#.#####...", :bottom "##.##.....", :left "..#..#.##.", :right "..##.....#"})
+                                         (:1432 {:top "##.###.###", :bottom "##.##.....", :left "#.....##..", :right ".##.#..#.."})
+                                         (:4321 {:top "##.###.###", :bottom "#.....##..", :left "...#####.#", :right "......#.#."})
+                                         (:2143 {:top "..##.....#", :bottom "..#..#.##.", :left ".#.#......", :right "#.#####..."})
+                                         (:2341 {:top "...#####.#", :bottom "......#.#.", :left ".##.#..#..", :right "#.....##.."})
+                                         (:3412 {:top "..#..#.##.", :bottom "..##.....#", :left "......#.#.", :right "...#####.#"})
+                                         (:4123 {:top ".#.#......", :bottom "#.#####...", :left "..##.....#", :right "..#..#.##."})
+                                         (:1234 {:top "#.....##..", :bottom ".##.#..#..", :left "#.#####...", :right ".#.#......"})))
+        transform1 (first tile1-transforms)
+        transform2 (first tile2-transforms)]
+    (do (println (gen-transform-matches tile1-key transform1 tile2-key transform2))
+        (println (gen-tile-matches [tile1-key tile1-transforms] tile2-key transform2))
+        (println (gen-tile-matches [tile1-key tile1-transforms] [tile2-key tile2-transforms])))))
 
 (defn -main
   []
-  (println first-tile-sides))
+  (gen-tile-matches-example))
