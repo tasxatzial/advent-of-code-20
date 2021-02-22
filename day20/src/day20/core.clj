@@ -302,6 +302,19 @@
             [tile-key transform-key]
             (recur (rest matches) result)))))))
 
+;;each element in this vector is the [x y]
+;;coordinates when this vector is split into vectors of image-dim size
+;;the total elements in the vector are image-dim * image-dim
+(def xy-index
+  (let [to-xy #(vector (mod % image-dim) (quot % image-dim))]
+    (mapv to-xy (take tile-count (range tile-count)))))
+
+(defn index->xy
+  "Returns the corresponding two dimensional coordinates of a one dimensional
+  vector. Accepts as an input an index from 0 to (vector.length - 1)"
+  [index]
+  (get xy-index index))
+
 (defn -main
   []
   (println (find-top-left-corner)))
