@@ -331,7 +331,7 @@
               (first right-matches)))))
 
 (defn assemble-image
-  "Return the final assembled image."
+  "Return the [tile-key transform-key] of the tiles in the final assembled image."
   ([]
    (let [side-matches (memoized-matches)
          initial-image (vec (take tile-count (repeat 0)))]
@@ -347,6 +347,24 @@
 
 (def memoized-image (memoize assemble-image))
 
+(defn key->int
+  "Convert a key like :123 to int 123"
+  [key]
+  (Integer. ^String (name key)))
+
+; ---------------------------------------
+; problem 1
+
+(defn day20-1
+  []
+  (let [final-image (memoized-image)
+        get-tile-num #(key->int (first (get-in final-image %)))
+        top-left-num (get-tile-num [0 0])
+        bottom-left-num (get-tile-num [(dec image-dim) 0])
+        top-right-num (get-tile-num [0 (dec image-dim)])
+        bottom-right-num (get-tile-num [(dec image-dim) (dec image-dim)])]
+    (* top-left-num bottom-left-num top-right-num bottom-right-num)))
+
 (defn -main
   []
-  (println (find-top-left-corner)))
+  (println (day20-1)))
