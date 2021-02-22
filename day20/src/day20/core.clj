@@ -330,6 +330,23 @@
                   right-matches (:right (tile-transform (tile-key matches)))]
               (first right-matches)))))
 
+(defn assemble-image
+  "Return the final assembled image."
+  ([]
+   (let [side-matches (memoized-matches)
+         initial-image (vec (take tile-count (repeat 0)))]
+     (assemble-image side-matches initial-image)))
+  ([side-matches initial-image]
+   (loop [image (assoc initial-image 0 (find-top-left-corner))
+          index 0]
+     (if (= index tile-count)
+       (vec (map vec (partition image-dim image)))
+       (let [next-tile (get-next-tile index side-matches image)
+             new-image (assoc image (inc index) next-tile)]
+         (recur new-image (inc index)))))))
+
+(def memoized-image (memoize assemble-image))
+
 (defn -main
   []
   (println (find-top-left-corner)))
