@@ -311,9 +311,24 @@
 
 (defn index->xy
   "Returns the corresponding two dimensional coordinates of a one dimensional
-  vector. Accepts as an input an index from 0 to (vector.length - 1)"
+  vector. Accepts as an input an index from 0 to (image-dim * image-dim - 1)"
   [index]
   (get xy-index index))
+
+(defn get-next-tile
+  "Returns the [tile-key transform-key] that corresponds to a tile that is
+  to the right of the tile at position index (of the final image).
+  Matches is the struct (memoized-matches).
+  Image is the assembled image so far (vector of length image-dim * image-dim)"
+  [index matches image]
+  (let [[x _] (index->xy index)]
+    (cond
+      (= (dec image-dim) x) (let [[tile-key tile-transform] (get image (- index (dec image-dim)))
+                                  bottom-matches (:bottom (tile-transform (tile-key matches)))]
+                              (first bottom-matches))
+      :else (let [[tile-key tile-transform] (get image index)
+                  right-matches (:right (tile-transform (tile-key matches)))]
+              (first right-matches)))))
 
 (defn -main
   []
