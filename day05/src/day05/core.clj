@@ -70,5 +70,5 @@
 (defn -main
   []
   (let [seat-ids (seat-ids)]
-    (println (day05-1 seat-ids))                                         ;806
-    (println (day05-2 seat-ids))))                                       ;562
+    (println (day05-1 seat-ids))
+    (println (day05-2 seat-ids))))

@@ -93,5 +93,5 @@
 
 (defn -main
   []
-  (println (day08-1))                                         ;[1818 false]
-  (println (day08-2)))                                        ;[631 true]
+  (println (day08-1))
+  (println (day08-2)))

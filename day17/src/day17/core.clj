@@ -152,5 +152,5 @@
 
 (defn -main
   []
-  (println (day17-1))                                       ;230
-  (println (day17-2)))                                      ;1600
+  (println (day17-1))
+  (println (day17-2)))

@@ -109,5 +109,5 @@
 
 (defn -main
   []
-  (println (day21-1))                                       ;1958
-  (println (day21-2)))                                      ;xxscc,mjmqst,gzxnc,vvqj,trnnvn,gbcjqbm,dllbjr,nckqzsg
+  (println (day21-1))
+  (println (day21-2)))

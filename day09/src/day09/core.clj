@@ -127,5 +127,5 @@
 
 (defn -main
   []
-  (println (memoized-day09-1))                                  ;393911906
-  (println (day09-2)))                               ;59341885
+  (println (memoized-day09-1))
+  (println (day09-2)))
