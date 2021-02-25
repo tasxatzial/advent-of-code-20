@@ -128,7 +128,6 @@
   []
   (count (memoized-get-flipped-tiles)))
 
-;slow, needs optimization
 (defn day24-2
   []
   (count (flip-tiles (memoized-get-flipped-tiles) 100)))
