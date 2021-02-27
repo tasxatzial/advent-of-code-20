@@ -399,7 +399,23 @@
             []
             assembled-image-keys)))
 
+(def image-dim (* tiles-per-row (- tile-xy-size 2)))
+(def memoized-image (memoize assemble-image))
+(def monster-x-size 20)
+(def monster-y-size 3)
+(def monster-positions
+  [[18 0] [0 1] [5 1] [6 1] [11 1] [12 1] [17 1] [18 1] [19 1] [1 2] [4 2] [7 2] [10 2] [13 2] [16 2]])
 
+(defn get-monster
+  "Returns a list of all [x_pos y_pos] coordinates of the monster hashtags when image contains
+  a monster image with top-left position [x y]. Otherwise it returns an empty list."
+  [image x y]
+  (let [xy-positions (map (fn [[x1 y1]]
+                            [(+ y y1) (+ x x1)]) monster-positions)
+        ch (map #(get-in image %) xy-positions)]
+    (if (every? #(= \# %) ch)
+      xy-positions
+      '())))
 
 ; ---------------------------------------
 ; results
