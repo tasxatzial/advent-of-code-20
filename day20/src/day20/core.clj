@@ -26,10 +26,9 @@
     {(keyword (str (Integer. ^String (second parsed-tile-text)))) tile}))
 
 (def tiles (into {} (map create-tile parsed-input)))
-(def tile-dim (count (second (first tiles))))
-(def tile-const (dec tile-dim))
-(def tile-count (count tiles))
-(def image-dim (Math/round (Math/sqrt (count tiles))))
+(def tile-xy-size (count (second (first tiles))))
+(def tile-count (count tiles))                              ;;we know it is a perfect square
+(def tiles-per-row (Math/round (Math/sqrt tile-count)))
 
 (defn get-top-side
   "Returns the top side of a tile-image."
@@ -61,57 +60,67 @@
     (assoc {} :top top-side :bottom bottom-side :left left-side :right right-side)))
 
 (defn transform-image
-  "Applies transform-func to tile-image."
+  "Applies transform-func to a two dimensional square image."
   [image transform-func]
-  (loop [result []
-         result-row []
-         x 0
-         y 0]
-    (if (= y tile-dim)
-      result
-      (if (= x tile-dim)
-        (recur (conj result (apply str result-row)) [] 0 (inc y))
-        (let [new-xy (transform-func image x y)]
-          (recur result (conj result-row new-xy) (inc x) y))))))
+  (let [image-xy-size (count image)
+        image-const (dec image-xy-size)]
+    (loop [result []
+           result-row []
+           x 0
+           y 0]
+      (if (= y image-xy-size)
+        result
+        (if (= x image-xy-size)
+          (recur (conj result (apply str result-row)) [] 0 (inc y))
+          (let [new-xy (transform-func image image-const x y)]
+            (recur result (conj result-row new-xy) (inc x) y)))))))
 
 (defn transform-1234
   "Returns the new value of [x, y] when transform is: identity."
-  [tile-image x y]
-  (get-in tile-image [y x]))
+  [image _ x y]
+  (get-in image [y x]))
 
 (defn transform-4123
-  "Returns the new value of [x, y] when transform is: rotate 90 degrees clockwise."
-  [tile-image x y]
-  (get-in tile-image [x (- tile-const y)]))
+  "Returns the new value of [x, y] when transform is: rotate 90 degrees clockwise.
+  image-const should be (image-row-count - 1)"
+  [image image-const x y]
+  (get-in image [x (- image-const y)]))
+
 (defn transform-3412
-  "Returns the new value of [x, y] when transform is: rotate 180 degrees."
-  [tile-image x y]
-  (get-in tile-image [(- tile-const y) (- tile-const x)]))
+  "Returns the new value of [x, y] when transform is: rotate 180 degrees.
+  image-const should be (image-row-count - 1)"
+  [image image-const x y]
+  (get-in image [(- image-const y) (- image-const x)]))
 
 (defn transform-2341
-  "Returns the new value of [x, y] when transform is: rotate 270 degrees clockwise."
-  [tile-image x y]
-  (get-in tile-image [(- tile-const x) y]))
+  "Returns the new value of [x, y] when transform is: rotate 270 degrees clockwise.
+  image-const should be (image-row-count - 1)"
+  [image image-const x y]
+  (get-in image [(- image-const x) y]))
 
 (defn transform-2143
-  "Returns the new value of [x, y] when transform is: flip along the vertical axis."
-  [tile-image x y]
-  (get-in tile-image [y (- tile-const x)]))
+  "Returns the new value of [x, y] when transform is: flip along the vertical axis.
+  image-const should be (image-row-count - 1)"
+  [image image-const x y]
+  (get-in image [y (- image-const x)]))
 
 (defn transform-4321
-  "Returns the new value of [x, y] when transform is: flip along the horizontal axis."
-  [tile-image x y]
-  (get-in tile-image [(- tile-const y) x]))
+  "Returns the new value of [x, y] when transform is: flip along the horizontal axis.
+  image-const should be (image-row-count - 1)"
+  [image image-const x y]
+  (get-in image [(- image-const y) x]))
 
 (defn transform-1432
-  "Returns the new value of [x, y] when transform is: flip along the top-left diagonal."
-  [tile-image x y]
-  (get-in tile-image [x y]))
+  "Returns the new value of [x, y] when transform is: flip along the top-left diagonal.
+  image-const should be (image-row-count - 1)"
+  [image _ x y]
+  (get-in image [x y]))
 
 (defn transform-3214
-  "Returns the new value of [x, y] when transform is: flip along the top-right diagonal."
-  [tile-image x y]
-  (get-in tile-image [(- tile-const x) (- tile-const y)]))
+  "Returns the new value of [x, y] when transform is: flip along the top-right diagonal.
+  image-const should be (image-row-count - 1)"
+  [image image-const x y]
+  (get-in image [(- image-const x) (- image-const y)]))
 
 (def func-to-key
   {transform-1234 :1234
@@ -191,9 +200,8 @@
   then the result would be
   {:2687 {:3214 {:left ([:2987 :2134]), :bottom (), :right ()), :top ()}},
   :2987 {:2134 {:left {}, :bottom {}, :right ([:2687 :3214]), :top ()}}}
-  meaning that the left side of tile 2687 (after transform-3214) matches with the right side
-  of tile 2987 (after transform-2134).
-  See also gen-tile-matches-example()"
+  meaning that the left side of tile 2687 (after transform-3214) matches with the right side of tile 2987
+  (after transform-2134)"
   [tile1-key [tile1-transform-key tile1-sides] tile2-key [tile2-transform-key tile2-sides]]
   (let [r1 (when (= (:top tile1-sides) (:bottom tile2-sides))
              [:top :bottom])
@@ -256,6 +264,7 @@
           (recur (rest tile-transforms) result)
           false)))))
 
+;;will return true for the input tiles
 (defn unique-matches?
   "Accepts as input the struct generated by gen-matches().
   Returns true iff each side of a tile has only one match."
@@ -271,7 +280,7 @@
 
 (defn find-top-left-corner-in-transforms
   "Accepts as input a map of transforms - as generated by gen-matches() -
-  Returns the transform key if the corresponding tile is the top-left
+  Returns the transform key of the tile that is the top-left
   corner of the assembled image."
   [transforms]
   (loop [tile-transforms transforms
@@ -301,28 +310,31 @@
             [tile-key transform-key]
             (recur (rest matches) result)))))))
 
-;;each element in this vector is the [x y]
-;;coordinates when this vector is split into vectors of image-dim size
-;;the total elements in the vector are image-dim * image-dim
-(def xy-index
-  (let [to-xy #(vector (mod % image-dim) (quot % image-dim))]
-    (mapv to-xy (take tile-count (range tile-count)))))
+;;converts a two dimensional vector of [x y] vector at position [x y]
+;;to a one dimensional vector by concatenating its rows.
+;;the size of each dimension is tiles-per-row
+;;the one dimensional vector has tile-count items
+(def tile-xy
+  (let [to-xy #(vector (mod % tiles-per-row) (quot % tiles-per-row))]
+    (mapv to-xy (range tile-count))))
 
-(defn index->xy
+(defn get-tile-xy
   "Returns the corresponding two dimensional coordinates of a one dimensional
-  vector. Accepts as an input an index from 0 to (image-dim * image-dim - 1)"
+  vector. Size of each dimension is tiles-per-row.
+  Accepts an index from 0 to (tile-count - 1)"
   [index]
-  (get xy-index index))
+  (get tile-xy index))
 
 (defn get-next-tile
   "Returns the [tile-key transform-key] that corresponds to a tile that is
   to the right of the tile at position index (of the final image).
   Matches is the struct (memoized-matches).
-  Image is the assembled image so far (vector of length image-dim * image-dim)"
+  Image is the assembled image so far (vector of length tile-count).
+  Each item in the image is a vector of [tile-key transform-key]"
   [index matches image]
-  (let [[x _] (index->xy index)]
+  (let [[x _] (get-tile-xy index)]
     (cond
-      (= (dec image-dim) x) (let [[tile-key tile-transform] (get image (- index (dec image-dim)))
+      (= (dec tiles-per-row) x) (let [[tile-key tile-transform] (get image (- index (dec tiles-per-row)))
                                   bottom-matches (:bottom (tile-transform (tile-key matches)))]
                               (first bottom-matches))
       :else (let [[tile-key tile-transform] (get image index)
@@ -339,7 +351,7 @@
    (loop [image (assoc initial-image 0 (find-top-left-corner))
           index 0]
      (if (= index tile-count)
-       (vec (map vec (partition image-dim image)))
+       (vec (map vec (partition tiles-per-row image)))
        (let [next-tile (get-next-tile index side-matches image)
              new-image (assoc image (inc index) next-tile)]
          (recur new-image (inc index)))))))
@@ -374,7 +386,7 @@
 (defn join-tile-images
   "Joins the right side of tile1-image with the left side of tile2-image and returns the new image."
   [tile1-image tile2-image]
-  (mapv #(str (get tile1-image %) (get tile2-image %)) (range tile-dim)))
+  (mapv #(str (get tile1-image %) (get tile2-image %)) (range tile-xy-size)))
 
 (defn assemble-image
   "Returns the final assembled image as a vector of strings, one per line."
@@ -387,6 +399,8 @@
             []
             assembled-image-keys)))
 
+
+
 ; ---------------------------------------
 ; results
 
@@ -395,11 +409,11 @@
   (let [assembled-image-keys (memoized-assembled-image-numbers)
         get-tile-num #(key->int (first (get-in assembled-image-keys %)))
         top-left-num (get-tile-num [0 0])
-        bottom-left-num (get-tile-num [(dec image-dim) 0])
-        top-right-num (get-tile-num [0 (dec image-dim)])
-        bottom-right-num (get-tile-num [(dec image-dim) (dec image-dim)])]
+        bottom-left-num (get-tile-num [(dec tiles-per-row) 0])
+        top-right-num (get-tile-num [0 (dec tiles-per-row)])
+        bottom-right-num (get-tile-num [(dec tiles-per-row) (dec tiles-per-row)])]
     (* top-left-num bottom-left-num top-right-num bottom-right-num)))
 
 (defn -main
   []
-  (println (assemble-image)))
+  (println (day20-1)))
