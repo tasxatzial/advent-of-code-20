@@ -400,7 +400,7 @@
             assembled-image-keys)))
 
 (def image-dim (* tiles-per-row (- tile-xy-size 2)))
-(def memoized-image (memoize assemble-image))
+(def memoized-assembled-image (memoize assemble-image))
 (def monster-x-size 20)
 (def monster-y-size 3)
 (def monster-positions
@@ -430,6 +430,21 @@
         (recur 0 (inc y) result)
         (let [monster (get-monster image x y)]
           (recur (inc x) y (into result monster)))))))
+
+(defn count-monster-hashtags
+  "Every image transform is applied to the assembled image until we find an image that has
+  monsters. For that image it returns the total number of hashtags that are part of a monster."
+  []
+  (let [image (memoized-assembled-image)]
+    (loop [transform-funcs func-to-key]
+      (if (empty? transform-funcs)
+        0
+        (let [transform-func (first (first transform-funcs))
+              monsters (get-monster-hashtag-positions (transform-image image transform-func))
+              count-hashtags (count monsters)]
+          (if (> count-hashtags 0)
+            count-hashtags
+            (recur (rest transform-funcs))))))))
 
 ; ---------------------------------------
 ; results
