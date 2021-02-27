@@ -446,6 +446,15 @@
             count-hashtags
             (recur (rest transform-funcs))))))))
 
+(defn count-image-hashtags
+  "Counts the total number of hashtags in the assembled image."
+  []
+  (let [image (memoized-assembled-image)]
+    (reduce (fn [result image-row]
+              (+ result (count (filter #(= \# %) image-row))))
+            0
+            image)))
+
 ; ---------------------------------------
 ; results
 
