@@ -407,7 +407,7 @@
   [[18 0] [0 1] [5 1] [6 1] [11 1] [12 1] [17 1] [18 1] [19 1] [1 2] [4 2] [7 2] [10 2] [13 2] [16 2]])
 
 (defn get-monster
-  "Returns a list of all [x_pos y_pos] coordinates of the monster hashtags when image contains
+  "Returns a list of all [y_pos x_pos] coordinates of the monster hashtags when image contains
   a monster image with top-left position [x y]. Otherwise it returns an empty list."
   [image x y]
   (let [xy-positions (map (fn [[x1 y1]]
@@ -416,6 +416,20 @@
     (if (every? #(= \# %) ch)
       xy-positions
       '())))
+
+(defn get-monster-hashtag-positions
+  "Scans the image and returns a set of all [y_pos x_pos] coordinates of the hashtags that
+  are part of a monster."
+  [image]
+  (loop [x 0
+         y 0
+         result #{}]
+    (if (= y (- image-dim (dec monster-y-size)))
+      result
+      (if (= x (- image-dim (dec monster-x-size)))
+        (recur 0 (inc y) result)
+        (let [monster (get-monster image x y)]
+          (recur (inc x) y (into result monster)))))))
 
 ; ---------------------------------------
 ; results
