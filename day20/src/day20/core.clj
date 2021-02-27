@@ -468,6 +468,11 @@
         bottom-right-num (get-tile-num [(dec tiles-per-row) (dec tiles-per-row)])]
     (* top-left-num bottom-left-num top-right-num bottom-right-num)))
 
+(defn day20-2
+  []
+  (- (count-image-hashtags) (count-monster-hashtags)))
+
 (defn -main
   []
-  (println (day20-1)))
+  (println (day20-1))
+  (println (day20-2)))
